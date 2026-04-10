@@ -1,0 +1,670 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FAB10000FAB10000BBB00001 /* LevelUpApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00001 /* LevelUpApp.swift */; };
+		FAB10000FAB10000BBB00002 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00002 /* Theme.swift */; };
+		FAB10000FAB10000BBB00003 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00003 /* Card.swift */; };
+		FAB10000FAB10000BBB00004 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00004 /* User.swift */; };
+		FAB10000FAB10000BBB00005 /* FitnessLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00005 /* FitnessLog.swift */; };
+		FAB10000FAB10000BBB00006 /* WorkLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00006 /* WorkLog.swift */; };
+		FAB10000FAB10000BBB00007 /* LearningLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00007 /* LearningLog.swift */; };
+		FAB10000FAB10000BBB00008 /* Unlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00008 /* Unlock.swift */; };
+		FAB10000FAB10000BBB00009 /* XPEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00009 /* XPEngine.swift */; };
+		FAB10000FAB10000BBB0000A /* UnlockEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0000A /* UnlockEngine.swift */; };
+		FAB10000FAB10000BBB0000B /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0000B /* DashboardViewModel.swift */; };
+		FAB10000FAB10000BBB0000C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0000C /* RootView.swift */; };
+		FAB10000FAB10000BBB0000D /* MainNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0000D /* MainNavigationView.swift */; };
+		FAB10000FAB10000BBB0000E /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0000E /* WelcomeView.swift */; };
+		FAB10000FAB10000BBB0000F /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0000F /* DashboardView.swift */; };
+		FAB10000FAB10000BBB00010 /* XPTrackCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00010 /* XPTrackCard.swift */; };
+		FAB10000FAB10000BBB00011 /* UnlockRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00011 /* UnlockRow.swift */; };
+		FAB10000FAB10000BBB00012 /* PlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00012 /* PlaceholderView.swift */; };
+		FAB10000FAB10000BBB00013 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00013 /* SettingsView.swift */; };
+		FAB10000FAB10000BBB00014 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00014 /* Assets.xcassets */; };
+		FAB10000FAB10000BBB00016 /* FitnessModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00016 /* FitnessModels.swift */; };
+		FAB10000FAB10000BBB00017 /* WorkModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00017 /* WorkModels.swift */; };
+		FAB10000FAB10000BBB00018 /* LearningModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00018 /* LearningModels.swift */; };
+		FAB10000FAB10000BBB00019 /* XPEngine+Phase2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00019 /* XPEngine+Phase2.swift */; };
+		FAB10000FAB10000BBB0001A /* UnlockCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0001A /* UnlockCenter.swift */; };
+		FAB10000FAB10000BBB0001B /* GymSplitEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0001B /* GymSplitEngine.swift */; };
+		FAB10000FAB10000BBB0001C /* FitnessViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0001C /* FitnessViewModel.swift */; };
+		FAB10000FAB10000BBB0001D /* WorkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0001D /* WorkViewModel.swift */; };
+		FAB10000FAB10000BBB0001E /* LearningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0001E /* LearningViewModel.swift */; };
+		FAB10000FAB10000BBB0001F /* InternalTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0001F /* InternalTabBar.swift */; };
+		FAB10000FAB10000BBB00020 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00020 /* ConfettiView.swift */; };
+		FAB10000FAB10000BBB00021 /* UnlockCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00021 /* UnlockCelebrationView.swift */; };
+		FAB10000FAB10000BBB00022 /* FitnessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00022 /* FitnessView.swift */; };
+		FAB10000FAB10000BBB00023 /* WorkoutTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00023 /* WorkoutTabView.swift */; };
+		FAB10000FAB10000BBB00024 /* FoodTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00024 /* FoodTabView.swift */; };
+		FAB10000FAB10000BBB00025 /* WeightTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00025 /* WeightTabView.swift */; };
+		FAB10000FAB10000BBB00026 /* HabitsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00026 /* HabitsTabView.swift */; };
+		FAB10000FAB10000BBB00027 /* WorkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00027 /* WorkView.swift */; };
+		FAB10000FAB10000BBB00028 /* ParaLAITabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00028 /* ParaLAITabView.swift */; };
+		FAB10000FAB10000BBB00029 /* BVATabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00029 /* BVATabView.swift */; };
+		FAB10000FAB10000BBB0002A /* LearningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002A /* LearningView.swift */; };
+		FAB10000FAB10000BBB0002B /* CoursesTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002B /* CoursesTabView.swift */; };
+		FAB10000FAB10000BBB0002C /* BooksTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002C /* BooksTabView.swift */; };
+		FAB10000FAB10000BBB0002D /* CertificationsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002D /* CertificationsTabView.swift */; };
+		FAB10000FAB10000BBB0002E /* APIConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002E /* APIConfig.swift */; };
+		FAB10000FAB10000BBB0002F /* AIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002F /* AIClient.swift */; };
+		FAB10000FAB10000BBB00030 /* AnimationConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00030 /* AnimationConstants.swift */; };
+		FAB10000FAB10000BBB00031 /* Phase3Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00031 /* Phase3Models.swift */; };
+		FAB10000FAB10000BBB00032 /* GameEventCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00032 /* GameEventCenter.swift */; };
+		FAB10000FAB10000BBB00033 /* User+Award.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00033 /* User+Award.swift */; };
+		FAB10000FAB10000BBB00034 /* LoginStreakEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00034 /* LoginStreakEngine.swift */; };
+		FAB10000FAB10000BBB00035 /* PersonalRecordsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00035 /* PersonalRecordsEngine.swift */; };
+		FAB10000FAB10000BBB00036 /* StreakFlameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00036 /* StreakFlameView.swift */; };
+		FAB10000FAB10000BBB00037 /* XPGainOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00037 /* XPGainOverlay.swift */; };
+		FAB10000FAB10000BBB00038 /* LevelUpOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00038 /* LevelUpOverlay.swift */; };
+		FAB10000FAB10000BBB00039 /* BannerOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00039 /* BannerOverlays.swift */; };
+		FAB10000FAB10000BBB0003A /* PerfectWeekOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		FAB10000FAB10000DDD00001 /* LevelUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LevelUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAB10000FAB10000FFF00001 /* LevelUpApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelUpApp.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00002 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00003 /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00004 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00005 /* FitnessLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessLog.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00006 /* WorkLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkLog.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00007 /* LearningLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningLog.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00008 /* Unlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unlock.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00009 /* XPEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0000A /* UnlockEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0000B /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0000C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0000D /* MainNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNavigationView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0000E /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0000F /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00010 /* XPTrackCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPTrackCard.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00011 /* UnlockRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockRow.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00012 /* PlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00015 /* LevelUp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LevelUp.entitlements; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00016 /* FitnessModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessModels.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00017 /* WorkModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkModels.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00018 /* LearningModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningModels.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00019 /* XPEngine+Phase2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XPEngine+Phase2.swift"; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0001A /* UnlockCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockCenter.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0001B /* GymSplitEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GymSplitEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0001C /* FitnessViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessViewModel.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0001D /* WorkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkViewModel.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0001E /* LearningViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningViewModel.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0001F /* InternalTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalTabBar.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00020 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00021 /* UnlockCelebrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockCelebrationView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00022 /* FitnessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00023 /* WorkoutTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00024 /* FoodTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00025 /* WeightTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00026 /* HabitsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00027 /* WorkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00028 /* ParaLAITabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParaLAITabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00029 /* BVATabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BVATabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0002A /* LearningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0002B /* CoursesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0002C /* BooksTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooksTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0002D /* CertificationsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificationsTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0002E /* APIConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIConfig.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0002F /* AIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIClient.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00030 /* AnimationConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationConstants.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00031 /* Phase3Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase3Models.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00032 /* GameEventCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEventCenter.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00033 /* User+Award.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+Award.swift"; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00034 /* LoginStreakEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginStreakEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00035 /* PersonalRecordsEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordsEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00036 /* StreakFlameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakFlameView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00037 /* XPGainOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPGainOverlay.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00038 /* LevelUpOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelUpOverlay.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00039 /* BannerOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerOverlays.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfectWeekOverlay.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FAB10000FAB10000BAA00003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FAB10000FAB10000AAA00001 = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000AAA00002 /* LevelUp */,
+				FAB10000FAB10000AAA00003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00002 /* LevelUp */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00001 /* LevelUpApp.swift */,
+				FAB10000FAB10000AAA00004 /* Theme */,
+				FAB10000FAB10000AAA00005 /* Models */,
+				FAB10000FAB10000AAA00006 /* Engines */,
+				FAB10000FAB10000AAA00007 /* ViewModels */,
+				FAB10000FAB10000AAA00008 /* Views */,
+				FAB10000FAB10000FFF00014 /* Assets.xcassets */,
+				FAB10000FAB10000FFF00015 /* LevelUp.entitlements */,
+			);
+			path = LevelUp;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000DDD00001 /* LevelUp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00004 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00002 /* Theme.swift */,
+				FAB10000FAB10000FFF00003 /* Card.swift */,
+				FAB10000FAB10000FFF00030 /* AnimationConstants.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00005 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00004 /* User.swift */,
+				FAB10000FAB10000FFF00005 /* FitnessLog.swift */,
+				FAB10000FAB10000FFF00006 /* WorkLog.swift */,
+				FAB10000FAB10000FFF00007 /* LearningLog.swift */,
+				FAB10000FAB10000FFF00008 /* Unlock.swift */,
+				FAB10000FAB10000FFF00016 /* FitnessModels.swift */,
+				FAB10000FAB10000FFF00017 /* WorkModels.swift */,
+				FAB10000FAB10000FFF00018 /* LearningModels.swift */,
+				FAB10000FAB10000FFF00031 /* Phase3Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00006 /* Engines */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00009 /* XPEngine.swift */,
+				FAB10000FAB10000FFF0000A /* UnlockEngine.swift */,
+				FAB10000FAB10000FFF00019 /* XPEngine+Phase2.swift */,
+				FAB10000FAB10000FFF0001A /* UnlockCenter.swift */,
+				FAB10000FAB10000FFF0001B /* GymSplitEngine.swift */,
+				FAB10000FAB10000FFF0002E /* APIConfig.swift */,
+				FAB10000FAB10000FFF0002F /* AIClient.swift */,
+				FAB10000FAB10000FFF00032 /* GameEventCenter.swift */,
+				FAB10000FAB10000FFF00033 /* User+Award.swift */,
+				FAB10000FAB10000FFF00034 /* LoginStreakEngine.swift */,
+				FAB10000FAB10000FFF00035 /* PersonalRecordsEngine.swift */,
+			);
+			path = Engines;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00007 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF0000B /* DashboardViewModel.swift */,
+				FAB10000FAB10000FFF0001C /* FitnessViewModel.swift */,
+				FAB10000FAB10000FFF0001D /* WorkViewModel.swift */,
+				FAB10000FAB10000FFF0001E /* LearningViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF0000C /* RootView.swift */,
+				FAB10000FAB10000FFF0000D /* MainNavigationView.swift */,
+				FAB10000FAB10000AAA00009 /* Welcome */,
+				FAB10000FAB10000AAA0000A /* Dashboard */,
+				FAB10000FAB10000AAA0000B /* Placeholder */,
+				FAB10000FAB10000AAA0000C /* Settings */,
+				FAB10000FAB10000AAA0000D /* Shared */,
+				FAB10000FAB10000AAA00011 /* Overlays */,
+				FAB10000FAB10000AAA0000E /* Fitness */,
+				FAB10000FAB10000AAA0000F /* Work */,
+				FAB10000FAB10000AAA00010 /* Learning */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA0000D /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF0001F /* InternalTabBar.swift */,
+				FAB10000FAB10000FFF00020 /* ConfettiView.swift */,
+				FAB10000FAB10000FFF00021 /* UnlockCelebrationView.swift */,
+				FAB10000FAB10000FFF00036 /* StreakFlameView.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00011 /* Overlays */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00037 /* XPGainOverlay.swift */,
+				FAB10000FAB10000FFF00038 /* LevelUpOverlay.swift */,
+				FAB10000FAB10000FFF00039 /* BannerOverlays.swift */,
+				FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */,
+			);
+			path = Overlays;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA0000E /* Fitness */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00022 /* FitnessView.swift */,
+				FAB10000FAB10000FFF00023 /* WorkoutTabView.swift */,
+				FAB10000FAB10000FFF00024 /* FoodTabView.swift */,
+				FAB10000FAB10000FFF00025 /* WeightTabView.swift */,
+				FAB10000FAB10000FFF00026 /* HabitsTabView.swift */,
+			);
+			path = Fitness;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA0000F /* Work */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00027 /* WorkView.swift */,
+				FAB10000FAB10000FFF00028 /* ParaLAITabView.swift */,
+				FAB10000FAB10000FFF00029 /* BVATabView.swift */,
+			);
+			path = Work;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00010 /* Learning */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF0002A /* LearningView.swift */,
+				FAB10000FAB10000FFF0002B /* CoursesTabView.swift */,
+				FAB10000FAB10000FFF0002C /* BooksTabView.swift */,
+				FAB10000FAB10000FFF0002D /* CertificationsTabView.swift */,
+			);
+			path = Learning;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00009 /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF0000E /* WelcomeView.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA0000A /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF0000F /* DashboardView.swift */,
+				FAB10000FAB10000FFF00010 /* XPTrackCard.swift */,
+				FAB10000FAB10000FFF00011 /* UnlockRow.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA0000B /* Placeholder */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00012 /* PlaceholderView.swift */,
+			);
+			path = Placeholder;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA0000C /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00013 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FAB10000FAB10000EEE00001 /* LevelUp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FAB10000FAB10000CCC00002 /* Build configuration list for PBXNativeTarget "LevelUp" */;
+			buildPhases = (
+				FAB10000FAB10000BAA00001 /* Sources */,
+				FAB10000FAB10000BAA00003 /* Frameworks */,
+				FAB10000FAB10000BAA00002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LevelUp;
+			productName = LevelUp;
+			productReference = FAB10000FAB10000DDD00001 /* LevelUp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FAB10000FAB10000ACE00001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					FAB10000FAB10000EEE00001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = FAB10000FAB10000CCC00001 /* Build configuration list for PBXProject "LevelUp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FAB10000FAB10000AAA00001;
+			productRefGroup = FAB10000FAB10000AAA00003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FAB10000FAB10000EEE00001 /* LevelUp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FAB10000FAB10000BAA00002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAB10000FAB10000BBB00014 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FAB10000FAB10000BAA00001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAB10000FAB10000BBB00001 /* LevelUpApp.swift in Sources */,
+				FAB10000FAB10000BBB00002 /* Theme.swift in Sources */,
+				FAB10000FAB10000BBB00003 /* Card.swift in Sources */,
+				FAB10000FAB10000BBB00004 /* User.swift in Sources */,
+				FAB10000FAB10000BBB00005 /* FitnessLog.swift in Sources */,
+				FAB10000FAB10000BBB00006 /* WorkLog.swift in Sources */,
+				FAB10000FAB10000BBB00007 /* LearningLog.swift in Sources */,
+				FAB10000FAB10000BBB00008 /* Unlock.swift in Sources */,
+				FAB10000FAB10000BBB00009 /* XPEngine.swift in Sources */,
+				FAB10000FAB10000BBB0000A /* UnlockEngine.swift in Sources */,
+				FAB10000FAB10000BBB0000B /* DashboardViewModel.swift in Sources */,
+				FAB10000FAB10000BBB0000C /* RootView.swift in Sources */,
+				FAB10000FAB10000BBB0000D /* MainNavigationView.swift in Sources */,
+				FAB10000FAB10000BBB0000E /* WelcomeView.swift in Sources */,
+				FAB10000FAB10000BBB0000F /* DashboardView.swift in Sources */,
+				FAB10000FAB10000BBB00010 /* XPTrackCard.swift in Sources */,
+				FAB10000FAB10000BBB00011 /* UnlockRow.swift in Sources */,
+				FAB10000FAB10000BBB00012 /* PlaceholderView.swift in Sources */,
+				FAB10000FAB10000BBB00013 /* SettingsView.swift in Sources */,
+				FAB10000FAB10000BBB00016 /* FitnessModels.swift in Sources */,
+				FAB10000FAB10000BBB00017 /* WorkModels.swift in Sources */,
+				FAB10000FAB10000BBB00018 /* LearningModels.swift in Sources */,
+				FAB10000FAB10000BBB00019 /* XPEngine+Phase2.swift in Sources */,
+				FAB10000FAB10000BBB0001A /* UnlockCenter.swift in Sources */,
+				FAB10000FAB10000BBB0001B /* GymSplitEngine.swift in Sources */,
+				FAB10000FAB10000BBB0001C /* FitnessViewModel.swift in Sources */,
+				FAB10000FAB10000BBB0001D /* WorkViewModel.swift in Sources */,
+				FAB10000FAB10000BBB0001E /* LearningViewModel.swift in Sources */,
+				FAB10000FAB10000BBB0001F /* InternalTabBar.swift in Sources */,
+				FAB10000FAB10000BBB00020 /* ConfettiView.swift in Sources */,
+				FAB10000FAB10000BBB00021 /* UnlockCelebrationView.swift in Sources */,
+				FAB10000FAB10000BBB00022 /* FitnessView.swift in Sources */,
+				FAB10000FAB10000BBB00023 /* WorkoutTabView.swift in Sources */,
+				FAB10000FAB10000BBB00024 /* FoodTabView.swift in Sources */,
+				FAB10000FAB10000BBB00025 /* WeightTabView.swift in Sources */,
+				FAB10000FAB10000BBB00026 /* HabitsTabView.swift in Sources */,
+				FAB10000FAB10000BBB00027 /* WorkView.swift in Sources */,
+				FAB10000FAB10000BBB00028 /* ParaLAITabView.swift in Sources */,
+				FAB10000FAB10000BBB00029 /* BVATabView.swift in Sources */,
+				FAB10000FAB10000BBB0002A /* LearningView.swift in Sources */,
+				FAB10000FAB10000BBB0002B /* CoursesTabView.swift in Sources */,
+				FAB10000FAB10000BBB0002C /* BooksTabView.swift in Sources */,
+				FAB10000FAB10000BBB0002D /* CertificationsTabView.swift in Sources */,
+				FAB10000FAB10000BBB0002E /* APIConfig.swift in Sources */,
+				FAB10000FAB10000BBB0002F /* AIClient.swift in Sources */,
+				FAB10000FAB10000BBB00030 /* AnimationConstants.swift in Sources */,
+				FAB10000FAB10000BBB00031 /* Phase3Models.swift in Sources */,
+				FAB10000FAB10000BBB00032 /* GameEventCenter.swift in Sources */,
+				FAB10000FAB10000BBB00033 /* User+Award.swift in Sources */,
+				FAB10000FAB10000BBB00034 /* LoginStreakEngine.swift in Sources */,
+				FAB10000FAB10000BBB00035 /* PersonalRecordsEngine.swift in Sources */,
+				FAB10000FAB10000BBB00036 /* StreakFlameView.swift in Sources */,
+				FAB10000FAB10000BBB00037 /* XPGainOverlay.swift in Sources */,
+				FAB10000FAB10000BBB00038 /* LevelUpOverlay.swift in Sources */,
+				FAB10000FAB10000BBB00039 /* BannerOverlays.swift in Sources */,
+				FAB10000FAB10000BBB0003A /* PerfectWeekOverlay.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FAB10000FAB10000CFE00001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		FAB10000FAB10000CFE00002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		FAB10000FAB10000CFE00003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LevelUp/LevelUp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "LEVEL UP";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Yashodev Reddy Annareddy. All rights reserved.";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yashodev.LevelUp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		FAB10000FAB10000CFE00004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LevelUp/LevelUp.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "LEVEL UP";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 Yashodev Reddy Annareddy. All rights reserved.";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yashodev.LevelUp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FAB10000FAB10000CCC00001 /* Build configuration list for PBXProject "LevelUp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAB10000FAB10000CFE00001 /* Debug */,
+				FAB10000FAB10000CFE00002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FAB10000FAB10000CCC00002 /* Build configuration list for PBXNativeTarget "LevelUp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAB10000FAB10000CFE00003 /* Debug */,
+				FAB10000FAB10000CFE00004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FAB10000FAB10000ACE00001 /* Project object */;
+}
