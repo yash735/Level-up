@@ -1,8 +1,8 @@
 # LEVEL UP
 
-A native macOS app for gamifying real life. Solo-Leveling inspired. Built for one user — Yashodev — who wants to track XP across **Fitness**, **Work**, and **Learning** and watch his character sheet fill in.
+A native macOS app for gamifying real life. Solo-Leveling inspired. Built for one user — Yashodev — who tracks XP across **Fitness**, **Work**, and **Learning** and watches his character sheet fill in.
 
-This repo is **Phase 1**: the engine, data layer, dashboard, and onboarding. No logging screens yet.
+Phases 1 through 5 are complete and shipping.
 
 ---
 
@@ -13,51 +13,174 @@ This repo is **Phase 1**: the engine, data layer, dashboard, and onboarding. No 
 - **macOS 14+** target
 - **MVVM**, no third-party dependencies
 - **SF Pro** + **SF Symbols**
+- **Anthropic Claude API** for AI-powered food macro analysis
 
 ## Quick Start
 
-1. Install **Xcode 15+** from the Mac App Store (Command Line Tools alone are not enough — SwiftData and SwiftUI previews require the full IDE).
+1. Install **Xcode 15+** from the Mac App Store.
 2. Open `LevelUp.xcodeproj` in Xcode.
 3. In the target settings, set **Signing & Capabilities → Team** to your Apple ID / team.
 4. Press **⌘R** to build and run.
-5. On first launch you'll see the welcome screen. Type your name (prefilled as Yashodev) and hit **Start Your Journey**. The User record and the full unlock catalog get seeded into SwiftData automatically.
+5. On first launch, type your name and hit **Start Your Journey**.
 
-> **Bundle ID:** `com.yashodev.LevelUp` — change in project settings if it collides with something else on your signing profile.
+**Shell alias (optional):** After building once, type `levelup` in any terminal to launch the app.
+
+**AI food logging:** Place your Anthropic API key at `~/Library/Application Support/LevelUp/anthropic_key.txt` or set `ANTHROPIC_API_KEY` in the Xcode scheme environment variables.
+
+> **Bundle ID:** `com.yashodev.LevelUp`
 
 ## Architecture
 
 ```
 LevelUp/
-├── LevelUpApp.swift            # @main — wires up ModelContainer
+├── LevelUpApp.swift              # @main — ModelContainer, menu bar, notifications, launch-at-login
 ├── Theme/
-│   ├── Theme.swift             # Colours, radii, gradients
-│   └── Card.swift              # Reusable Card / SectionHeader / ProgressBar
-├── Models/                     # SwiftData @Model types
-│   ├── User.swift              # Single user record. Levels are derived.
-│   ├── FitnessLog.swift        # Phase 2 target
-│   ├── WorkLog.swift           # Phase 2 target
-│   ├── LearningLog.swift       # Phase 2 target
-│   └── Unlock.swift            # Rewards / badges / titles catalog
+│   ├── Theme.swift               # Colours, radii, gradients (dark, electric, RPG)
+│   ├── Card.swift                # Reusable Card / SectionHeader / ProgressBar
+│   └── AnimationConstants.swift  # Timing + spring presets
+├── Models/
+│   ├── User.swift                # Single user record. Levels derived from XP.
+│   ├── FitnessModels.swift       # GymSession, Exercise, CardioSession, FoodEntry, WeightEntry, HabitLog, GymSplitState
+│   ├── WorkModels.swift          # Deal, ParaLAIEntry, ParaLAIMilestone
+│   ├── LearningModels.swift      # Course, Book, Certification
+│   ├── OtherWorkLog.swift        # Category-based project work logging
+│   ├── Phase45Models.swift       # RankStreakState, BalancedDayLog, FounderWeekLog, WeeklyChallenge, BaselineStats, SeasonCarryover, Achievement
+│   ├── WeeklyReport.swift        # Graded weekly report (S/A/B/C/D)
+│   ├── Unlock.swift              # Rewards / badges / titles catalog
+│   ├── FitnessLog.swift, WorkLog.swift, LearningLog.swift  # Per-session logs
+│   └── Phase3Models.swift        # LoginStreak, PersonalRecord
 ├── Engines/
-│   ├── XPEngine.swift          # Level curve + every XP rule, central.
-│   └── UnlockEngine.swift      # Seeds catalog + evaluates unlocks
+│   ├── XPEngine.swift            # Level curve + all XP rules
+│   ├── XPEngine+Phase2.swift     # Phase 2 XP extensions
+│   ├── User+Award.swift          # Centralized XP mutation — multiplier, level-up detection, events
+│   ├── UnlockEngine.swift        # Seeds catalog + evaluates unlocks
+│   ├── UnlockCenter.swift        # FIFO unlock celebration bus
+│   ├── GameEventCenter.swift     # @Observable event bus — XP gains, level-ups, banners
+│   ├── GymSplitEngine.swift      # Upper/Lower/Push/Pull/Legs cycle + gym bonuses
+│   ├── LoginStreakEngine.swift    # Daily login bonus (10 + streak×5, capped 150)
+│   ├── PersonalRecordsEngine.swift # Detects new personal bests
+│   ├── BonusEngine.swift         # XP multipliers, balanced days, founder weeks, achievements
+│   ├── ChallengeManager.swift    # Weekly/monthly challenges with dynamic difficulty
+│   ├── BaselineCalculator.swift  # Trailing 4-week averages for challenge scaling
+│   ├── SeasonManager.swift       # Season carryover rewards
+│   ├── WeeklyReportEngine.swift  # Monday auto-report generation + grading
+│   ├── InsightEngine.swift       # Data-driven correlation insights
+│   ├── StatsRepository.swift     # Centralized FetchDescriptor queries for Stats
+│   ├── MenuBarManager.swift      # NSStatusItem — left-click popover, right-click menu
+│   ├── NotificationManager.swift # UNUserNotificationCenter — reminders, alerts
+│   ├── LoginItemManager.swift    # SMAppService launch-at-login
+│   ├── AIClient.swift            # Anthropic Claude API — meal macro analysis
+│   └── APIConfig.swift           # API key resolution (env var / file)
 ├── ViewModels/
-│   └── DashboardViewModel.swift
+│   ├── DashboardViewModel.swift  # Unlocks, today summary
+│   ├── FitnessViewModel.swift    # Gym, food, weight, habit aggregation
+│   ├── WorkViewModel.swift       # BVA pipeline, ParaLAI, projects
+│   └── LearningViewModel.swift   # Courses, books, certifications
 └── Views/
-    ├── RootView.swift          # Welcome vs. main router
-    ├── MainNavigationView.swift# Sidebar shell
+    ├── RootView.swift            # Welcome vs. main router
+    ├── MainNavigationView.swift  # Sidebar: Dashboard / Fitness / Work / Learning / Stats / Settings
     ├── Welcome/WelcomeView.swift
     ├── Dashboard/
-    │   ├── DashboardView.swift
-    │   ├── XPTrackCard.swift
+    │   ├── DashboardView.swift   # Hero badge, track cards with metrics, challenges, records
+    │   ├── XPTrackCard.swift     # Level + XP bar + 3 densified metrics per track
     │   └── UnlockRow.swift
-    ├── Placeholder/PlaceholderView.swift
-    └── Settings/SettingsView.swift
+    ├── Fitness/
+    │   ├── FitnessView.swift     # 4 tabs: Workout, Food, Weight, Habits
+    │   ├── WorkoutTabView.swift  # Gym split logging with exercises
+    │   ├── FoodTabView.swift     # AI-powered meal analysis + macro tracking
+    │   ├── WeightTabView.swift   # Weight trend tracking
+    │   └── HabitsTabView.swift   # 6 daily habits
+    ├── Work/
+    │   ├── WorkView.swift        # 3 tabs: BVA, ParaLAI, Projects
+    │   ├── BVATabView.swift      # Deal pipeline (7 stages → Closed Won/Lost)
+    │   ├── ParaLAITabView.swift  # Feature/bug/milestone logging
+    │   └── OtherWorkTabView.swift # Category-based project work
+    ├── Learning/
+    │   ├── LearningView.swift    # 3 tabs + weekly study goal progress
+    │   ├── CoursesTabView.swift  # Course progress + study time
+    │   ├── BooksTabView.swift    # Pages read + completion
+    │   └── CertificationsTabView.swift # Cert study hours + earning
+    ├── Stats/StatsView.swift     # Analytics dashboard
+    ├── MenuBar/QuickLogPopover.swift # 320px quick-log popover (fitness/work/learning)
+    ├── Overlays/
+    │   ├── XPGainOverlay.swift   # Floating +XP numbers
+    │   ├── LevelUpOverlay.swift  # Full-screen level-up celebration
+    │   ├── BannerOverlays.swift  # Generic banners (gold/green/red/purple)
+    │   ├── PerfectWeekOverlay.swift
+    │   ├── WeeklyReportOverlay.swift
+    │   └── WeeklyReportRoot.swift
+    ├── Shared/
+    │   ├── ConfettiView.swift
+    │   ├── InternalTabBar.swift
+    │   ├── StreakFlameView.swift
+    │   └── UnlockCelebrationView.swift
+    └── Settings/SettingsView.swift # Name, notifications, menu bar, launch, danger zone
 ```
 
-**Single source of truth for XP:** all XP and level maths route through `XPEngine`. `User`'s `fitnessLevel` / `workLevel` / `learningLevel` / `totalLevel` are all computed from raw XP — you can never get a stale level number in the UI.
+## Phases
 
-**Unlocks:** `UnlockEngine.seedCatalog` is the one place to add or tweak rewards. On first launch the catalog is seeded into SwiftData; `evaluateUnlocks(user:context:)` walks every still-locked record and flips the ones the user now qualifies for.
+### Phase 1 — Engine & Dashboard
+XP engine with 50-level curve, SwiftData models, unlock catalog, dashboard with total level badge, track cards, unlock progression, onboarding.
+
+### Phase 2 — Full Logging
+Fitness: gym split system (Upper/Lower/Push/Pull/Legs), exercise tracking, AI food macro analysis via Claude API, weight trending, 6 daily habits. Work: BVA deal pipeline (Prospecting → Closed Won), ParaLAI feature/bug/milestone logging, category-based project work. Learning: course progress, book tracking, certification study hours.
+
+### Phase 3 — Gamification
+Daily login streak with scaling bonus, personal records detection (heaviest lift, biggest deal, longest study session), XP gain animations, level-up celebrations, unlock toasts, confetti.
+
+### Phase 4 — Stats & Analytics
+Weekly report engine with S/A/B/C/D grading, stats dashboard, insight engine with data-driven correlations, OtherWorkLog with per-category XP rates (Acquisitions Research: 80/hr, Admin: 40/hr, etc.).
+
+### Phase 4.5 — Bonuses & Challenges
+XP multipliers (2× for S-rank streaks), balanced day bonus (+50 XP/track when all 3 logged), founder week (+1000 XP for closing a deal + shipping a milestone in one week), weekly/monthly challenges with dynamic difficulty, achievement catalog (15 achievements), season carryover system.
+
+### Phase 5 — Mac Polish
+Persistent menu bar icon with quick-log popover (left-click) and context menu (right-click), native macOS notifications (morning/evening/gym/study reminders, streak/challenge/level-up alerts), launch-at-login via SMAppService, app stays alive in menu bar when window closes, Settings expanded with notification scheduling, menu bar toggles, launch preferences.
+
+## XP Rules
+
+**Fitness**
+| Action | XP |
+|---|---|
+| Workout (easy/medium/hard) | 50 / 75 / 100 |
+| Cardio (easy/medium/hard) | 40 / 60 / 80 |
+| Nutrition log | 20 |
+| Weight log | 10 |
+| All 6 daily habits | 30 |
+| Streak bonus | streak × 5 |
+| Perfect gym week (5/5) | 200 |
+| 30-day gym streak | 500 |
+
+**Work**
+| Action | XP |
+|---|---|
+| ParaLAI feature built | 100 |
+| ParaLAI bug fixed | 40 |
+| ParaLAI milestone shipped | 300 |
+| BVA deal added | 50 |
+| BVA deal stage update | 75 |
+| BVA deal closed | 500 |
+| BVA meeting | 60 |
+| Project work | 40–80/hr by category |
+
+**Learning**
+| Action | XP |
+|---|---|
+| 30 min study | 40 |
+| 1 hour study | 100 |
+| Course completed | 400 |
+| Book finished | 200 |
+| Certification earned | 600 |
+
+**Bonuses**
+| Bonus | XP |
+|---|---|
+| Balanced day (all 3 tracks) | +50 per track |
+| 7-day balanced streak | +500 |
+| Founder week | +1000 |
+| S-rank streak (2+ weeks) | 2× multiplier |
+| A-rank streak (2+ weeks) | +200 |
+| Game Plan complete | +100 |
 
 ## Level Curve
 
@@ -70,56 +193,6 @@ LevelUp/
 
 Total Level is derived from the sum of all three tracks using the same curve.
 
-## XP Rules (Phase 1 engine, Phase 2 UI)
+## Phase 6 (Planned)
 
-**Fitness**
-- Workout: 50 XP × intensity (easy 1.0 / medium 1.5 / hard 2.0)
-- Nutrition log: 20 XP
-- Weight log: 10 XP
-- All daily habits: 30 XP
-- Daily streak bonus: `streak × 5` XP
-
-**Work**
-- ParaLAI feature built: 100 XP
-- ParaLAI bug fixed: 40 XP
-- ParaLAI milestone shipped: **+300 XP**
-- BVA deal added to pipeline: 50 XP
-- BVA deal stage update: 75 XP
-- BVA deal closed: **+500 XP**
-- BVA meeting completed: 60 XP
-
-**Learning**
-- 30 min study: 40 XP
-- 1 hour study: 100 XP
-- Course completed: **+400 XP**
-- Book finished: **+200 XP**
-- Certification earned: **+600 XP**
-
-## Settings
-
-The Settings screen lets you:
-- Rename yourself (default: Yashodev)
-- Reset all data (wipes User + logs + unlocks, returns to welcome screen)
-- See the app version
-
-## Phase 2 Roadmap
-
-Everything Phase 1 set the table for:
-
-1. **Logging screens** behind the three sidebar items:
-   - Fitness: workouts / nutrition / weight / habits with forms that award XP via `XPEngine`.
-   - Work: ParaLAI feature/bug/milestone + BVA deal add/stage/close/meeting.
-   - Learning: study session timer, book finished, course completed, certification earned.
-2. **Streak tracking** — a daily heartbeat that advances `User.currentStreak` when anything is logged, resets on a missed day, and awards the daily streak bonus.
-3. **Today summary wired to real logs** — replace the hard-coded `xpEarnedToday: 0` with a `sum(xpEarned)` over today's logs.
-4. **History views** — per-track timeline of past logs.
-5. **Unlock notifications** — pop a celebratory toast when `UnlockEngine.evaluateUnlocks` flips a new one.
-6. **Export / backup** — JSON dump of the SwiftData store for safekeeping.
-7. **Calendar heatmap** — GitHub-style consistency grid across all three tracks.
-
-## Phase 3+ (speculative)
-
-- iCloud sync (CloudKit) — if he ever wants this on iPhone/iPad.
-- Apple Health integration for automatic workout logging.
-- Widgets for current level / streak.
-- Season system — reset after Level 50, start Season 2.
+**ARYA — AI Chief of Staff.** Conversational AI interface powered by Claude API. Natural language logging ("just finished Push day"), weekly AI reviews, proactive insights, daily game plan, honest performance feedback. Full plan saved in the repo — implementation shelved for now.
