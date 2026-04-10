@@ -89,6 +89,18 @@ struct PerfectWeekEvent: Identifiable, Equatable {
     let xp: Int
 }
 
+/// Generic banner for Phase 4.5 bonus events.
+struct GenericBannerEvent: Identifiable, Equatable {
+    let id = UUID()
+    let title: String
+    let subtitle: String
+    let colorScheme: BannerColor
+
+    enum BannerColor: Equatable {
+        case gold, green, red, purple
+    }
+}
+
 // MARK: - The bus
 
 @Observable
@@ -108,6 +120,7 @@ final class GameEventCenter {
     // Transient banners.
     var currentRecord: RecordEvent?
     var currentDailyBonus: DailyBonusEvent?
+    var currentGenericBanner: GenericBannerEvent?
 
     private init() {}
 
@@ -160,6 +173,15 @@ final class GameEventCenter {
         let event = PerfectWeekEvent(xp: xp)
         pendingPerfectWeeks.append(event)
         advancePerfectWeekIfIdle()
+    }
+
+    @MainActor
+    func fireBanner(title: String, subtitle: String, color: GenericBannerEvent.BannerColor) {
+        let event = GenericBannerEvent(title: title, subtitle: subtitle, colorScheme: color)
+        currentGenericBanner = event
+        DispatchQueue.main.asyncAfter(deadline: .now() + AnimConst.bannerVisible + 1.0) { [weak self] in
+            if self?.currentGenericBanner?.id == event.id { self?.currentGenericBanner = nil }
+        }
     }
 
     // MARK: Dismiss

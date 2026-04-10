@@ -29,6 +29,17 @@ final class User {
     /// Last calendar day a log was recorded; used to advance the streak.
     var lastActiveDate: Date?
 
+    // MARK: - Active XP Multiplier (set by BonusEngine/SeasonManager)
+    /// Optional so SwiftData can migrate existing User rows without blowing up.
+    var activeMultiplier: Double?
+    var multiplierExpiryDate: Date?
+
+    /// Resolved multiplier — treats nil as 1.0.
+    var resolvedMultiplier: Double {
+        get { activeMultiplier ?? 1.0 }
+        set { activeMultiplier = newValue }
+    }
+
     init(name: String = "Yashodev") {
         self.id = UUID()
         self.name = name
@@ -39,6 +50,8 @@ final class User {
         self.currentStreak = 0
         self.longestStreak = 0
         self.lastActiveDate = nil
+        self.activeMultiplier = 1.0
+        self.multiplierExpiryDate = nil
     }
 
     // MARK: - Derived values

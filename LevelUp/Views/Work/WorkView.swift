@@ -22,18 +22,20 @@ struct WorkView: View {
     private var entries: [ParaLAIEntry]
 
     enum Tab: String, CaseIterable, Identifiable {
-        case paralai, bva
+        case paralai, bva, other
         var id: String { rawValue }
         var title: String {
             switch self {
             case .paralai: return "PARALAI"
             case .bva:     return "BVA"
+            case .other:   return "PROJECTS"
             }
         }
         var icon: String {
             switch self {
             case .paralai: return "shippingbox.fill"
             case .bva:     return "building.columns.fill"
+            case .other:   return "folder.fill"
             }
         }
     }
@@ -58,6 +60,7 @@ struct WorkView: View {
                     switch selection {
                     case .paralai: ParaLAITabView(user: user, vm: vm)
                     case .bva:     BVATabView(user: user, vm: vm)
+                    case .other:   OtherWorkTabView(user: user)
                     }
                 }
             }

@@ -29,6 +29,10 @@ struct BannerOverlay: View {
                 RecordBanner(event: record)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
+            if let banner = events.currentGenericBanner {
+                GenericBanner(event: banner)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
             Spacer()
         }
         .padding(.top, 24)
@@ -38,6 +42,8 @@ struct BannerOverlay: View {
                    value: events.currentDailyBonus?.id)
         .animation(.spring(response: 0.45, dampingFraction: 0.78),
                    value: events.currentRecord?.id)
+        .animation(.spring(response: 0.45, dampingFraction: 0.78),
+                   value: events.currentGenericBanner?.id)
         .allowsHitTesting(false)
     }
 }
@@ -116,5 +122,60 @@ private struct RecordBanner: View {
                 .stroke(event.track.color.opacity(0.5), lineWidth: 1.5)
         )
         .shadow(color: event.track.color.opacity(0.4), radius: 18, y: 6)
+    }
+}
+
+// MARK: - Generic Phase 4.5 banner
+
+private struct GenericBanner: View {
+    let event: GenericBannerEvent
+
+    private var bannerColor: Color {
+        switch event.colorScheme {
+        case .gold:   return Theme.xpGold
+        case .green:  return Theme.xpGreen
+        case .red:    return .red
+        case .purple: return .purple
+        }
+    }
+
+    private var bannerIcon: String {
+        switch event.colorScheme {
+        case .gold:   return "crown.fill"
+        case .green:  return "checkmark.seal.fill"
+        case .red:    return "exclamationmark.triangle.fill"
+        case .purple: return "sparkles"
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: bannerIcon)
+                .font(.title2)
+                .foregroundStyle(bannerColor)
+                .frame(width: 44, height: 44)
+                .background(bannerColor.opacity(0.18))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(event.title)
+                    .font(.caption).fontWeight(.heavy).tracking(2)
+                    .foregroundStyle(bannerColor)
+                Text(event.subtitle)
+                    .font(.subheadline).fontWeight(.semibold)
+                    .foregroundStyle(Theme.textPrimary)
+            }
+
+            Spacer()
+        }
+        .padding(14)
+        .frame(maxWidth: 460)
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(bannerColor.opacity(0.5), lineWidth: 1.5)
+        )
+        .shadow(color: bannerColor.opacity(0.4), radius: 18, y: 6)
     }
 }

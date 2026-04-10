@@ -20,6 +20,9 @@ struct LearningView: View {
     private var books: [Book]
 
     @Query private var certifications: [Certification]
+    @Query(sort: \LearningLog.date, order: .reverse) private var learningLogs: [LearningLog]
+
+    @AppStorage("weeklyStudyHoursTarget") private var weeklyStudyHoursTarget = 10
 
     enum Tab: String, CaseIterable, Identifiable {
         case courses, books, certs
@@ -44,6 +47,14 @@ struct LearningView: View {
 
     private var vm: LearningViewModel {
         LearningViewModel(courses: courses, books: books, certifications: certifications)
+    }
+
+    private var studyHoursThisWeek: Double {
+        let cal = Calendar.current
+        let weekStart = cal.dateInterval(of: .weekOfYear, for: .now)?.start ?? cal.startOfDay(for: .now)
+        return learningLogs
+            .filter { $0.date >= weekStart }
+            .reduce(0) { $0 + $1.hoursStudied }
     }
 
     var body: some View {
@@ -72,7 +83,7 @@ struct LearningView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("LEARNING")
                 .font(.system(size: 52, weight: .black, design: .rounded))
                 .tracking(5)
@@ -87,9 +98,34 @@ struct LearningView: View {
                     .font(.subheadline).monospacedDigit().fontWeight(.heavy)
                     .foregroundStyle(Theme.primaryAccent)
                 Text("·").foregroundStyle(Theme.textSecondary)
-                Text("\(vm.totalStudyHours, specifier: "%.1f") hrs")
+                Text("\(vm.totalStudyHours, specifier: "%.1f") hrs total")
                     .font(.subheadline).monospacedDigit()
                     .foregroundStyle(Theme.textSecondary)
+            }
+
+            // Weekly study goal progress
+            weeklyGoalBar
+        }
+    }
+
+    private var weeklyGoalBar: some View {
+        let progress = weeklyStudyHoursTarget > 0
+            ? min(1.0, studyHoursThisWeek / Double(weeklyStudyHoursTarget))
+            : 0
+        let hit = studyHoursThisWeek >= Double(weeklyStudyHoursTarget)
+        return HStack(spacing: 12) {
+            Text("THIS WEEK")
+                .font(.caption2).fontWeight(.heavy).tracking(1)
+                .foregroundStyle(Theme.textSecondary)
+            ProgressBar(progress: progress, color: hit ? Theme.xpGreen : Theme.primaryAccent)
+                .frame(width: 180)
+            Text(String(format: "%.1f / %d hrs", studyHoursThisWeek, weeklyStudyHoursTarget))
+                .font(.caption).monospacedDigit().fontWeight(.semibold)
+                .foregroundStyle(hit ? Theme.xpGreen : Theme.textPrimary)
+            if hit {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(Theme.xpGreen)
+                    .font(.caption)
             }
         }
     }

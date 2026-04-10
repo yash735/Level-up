@@ -25,15 +25,26 @@ extension User {
     func award(_ amount: Int, to track: XPTrack) -> Int {
         guard amount != 0 else { return 0 }
 
+        // Apply active XP multiplier
+        var effectiveMultiplier = resolvedMultiplier
+        if let expiry = multiplierExpiryDate, expiry < .now {
+            effectiveMultiplier = 1.0
+            resolvedMultiplier = 1.0
+            multiplierExpiryDate = nil
+        }
+        let finalAmount = effectiveMultiplier > 1.0
+            ? Int(Double(amount) * effectiveMultiplier)
+            : amount
+
         let oldLevel = levelFor(track)
         switch track {
-        case .fitness:  fitnessXP  += amount
-        case .work:     workXP     += amount
-        case .learning: learningXP += amount
+        case .fitness:  fitnessXP  += finalAmount
+        case .work:     workXP     += finalAmount
+        case .learning: learningXP += finalAmount
         }
         let newLevel = levelFor(track)
 
-        GameEventCenter.shared.fireXPGain(amount: amount, track: track)
+        GameEventCenter.shared.fireXPGain(amount: finalAmount, track: track)
         if newLevel > oldLevel {
             GameEventCenter.shared.fireLevelUp(track: track,
                                                oldLevel: oldLevel,

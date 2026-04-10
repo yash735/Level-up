@@ -53,7 +53,6 @@ struct CertificationsTabView: View {
             earnedCard
         }
         .sheet(isPresented: $showingAdd) { addSheet }
-        .onAppear(perform: seedIfNeeded)
     }
 
     // MARK: - Active
@@ -247,6 +246,7 @@ struct CertificationsTabView: View {
         let xp = hours >= 1 ? XPEngine.xpForStudy1Hour : XPEngine.xpForStudy30Min
         cert.xpEarned += xp
         user.award(xp, to: .learning)
+        context.insert(LearningLog(type: "certification", name: cert.name, hoursStudied: hours, xpEarned: xp))
         PersonalRecordsEngine.evaluateStudySession(minutes: Int(hours * 60),
                                                    courseName: cert.name,
                                                    in: context)
@@ -270,21 +270,4 @@ struct CertificationsTabView: View {
         UnlockCenter.shared.present(newly)
     }
 
-    // MARK: - Seed
-
-    /// AWS Cloud Practitioner is pre-seeded as already earned, as the
-    /// user has that in real life — gives the Certs tab something to
-    /// render on day one.
-    private func seedIfNeeded() {
-        if vm.certifications.isEmpty {
-            let aws = Certification(name: "AWS Certified Cloud Practitioner",
-                                    issuingBody: "Amazon Web Services",
-                                    estimatedHours: 40)
-            aws.isEarned = true
-            aws.earnedAt = .now
-            aws.studiedHours = 40
-            context.insert(aws)
-            try? context.save()
-        }
-    }
 }

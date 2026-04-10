@@ -244,6 +244,7 @@ struct CoursesTabView: View {
         let xp = hours >= 1 ? XPEngine.xpForStudy1Hour : XPEngine.xpForStudy30Min
         course.xpEarned += xp
         user.award(xp, to: .learning)
+        context.insert(LearningLog(type: "course", name: course.name, hoursStudied: hours, xpEarned: xp))
         PersonalRecordsEngine.evaluateStudySession(minutes: Int(hours * 60),
                                                    courseName: course.name,
                                                    in: context)

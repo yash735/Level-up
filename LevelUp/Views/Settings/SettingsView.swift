@@ -21,6 +21,32 @@ struct SettingsView: View {
     @State private var showResetConfirm = false
     @State private var showSavedToast = false
 
+    // Phase 5 — Notification settings
+    @AppStorage("notificationsEnabled") private var notificationsEnabled = true
+    @AppStorage("notifMorning") private var notifMorning = true
+    @AppStorage("notifMorningHour") private var notifMorningHour = 7
+    @AppStorage("notifEvening") private var notifEvening = true
+    @AppStorage("notifEveningHour") private var notifEveningHour = 21
+    @AppStorage("notifGym") private var notifGym = true
+    @AppStorage("notifGymHour") private var notifGymHour = 6
+    @AppStorage("notifStudy") private var notifStudy = true
+    @AppStorage("notifStudyHour") private var notifStudyHour = 20
+    @AppStorage("notifStreak") private var notifStreak = true
+    @AppStorage("notifChallenge") private var notifChallenge = true
+    @AppStorage("notifLevelUp") private var notifLevelUp = true
+    @AppStorage("notifUnlock") private var notifUnlock = true
+
+    // Phase 5 — Menu Bar settings
+    @AppStorage("menuBarShowBadge") private var menuBarShowBadge = true
+    @AppStorage("menuBarShowPulse") private var menuBarShowPulse = true
+    @AppStorage("menuBarDefaultTab") private var menuBarDefaultTab = "fitness"
+
+    // Phase 5 — Launch settings
+    @AppStorage("launchAtLogin") private var launchAtLogin = true
+    @AppStorage("openWindowAtLaunch") private var openWindowAtLaunch = false
+    @AppStorage("showLaunchNotification") private var showLaunchNotification = true
+
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
@@ -66,6 +92,95 @@ struct SettingsView: View {
                     .padding(Theme.cardPadding)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+
+                // MARK: Notifications
+                Card {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("NOTIFICATIONS")
+                            .font(.caption).fontWeight(.heavy).tracking(2)
+                            .foregroundStyle(Theme.primaryAccent)
+
+                        Toggle("Enable Notifications", isOn: $notificationsEnabled)
+                            .tint(Theme.primaryAccent)
+                            .onChange(of: notificationsEnabled) { rescheduleNotifications() }
+
+                        if notificationsEnabled {
+                            Divider().background(Theme.cardBorder)
+
+                            settingsToggleWithTime("Morning Reminder", isOn: $notifMorning, hour: $notifMorningHour)
+                            settingsToggleWithTime("Evening Reminder", isOn: $notifEvening, hour: $notifEveningHour)
+                            settingsToggleWithTime("Gym Reminder", isOn: $notifGym, hour: $notifGymHour)
+                            settingsToggleWithTime("Study Reminder", isOn: $notifStudy, hour: $notifStudyHour)
+
+                            Divider().background(Theme.cardBorder)
+
+                            Toggle("Streak Alerts", isOn: $notifStreak)
+                                .tint(Theme.primaryAccent)
+                            Toggle("Challenge Alerts", isOn: $notifChallenge)
+                                .tint(Theme.primaryAccent)
+                            Toggle("Level Up Alerts", isOn: $notifLevelUp)
+                                .tint(Theme.primaryAccent)
+                            Toggle("Unlock Alerts", isOn: $notifUnlock)
+                                .tint(Theme.primaryAccent)
+                        }
+                    }
+                    .padding(Theme.cardPadding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .onChange(of: notifMorning) { rescheduleNotifications() }
+                    .onChange(of: notifEvening) { rescheduleNotifications() }
+                    .onChange(of: notifGym) { rescheduleNotifications() }
+                    .onChange(of: notifStudy) { rescheduleNotifications() }
+                }
+
+                // MARK: Menu Bar
+                Card {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("MENU BAR")
+                            .font(.caption).fontWeight(.heavy).tracking(2)
+                            .foregroundStyle(Theme.secondaryAccent)
+
+                        Toggle("Show Level Badge", isOn: $menuBarShowBadge)
+                            .tint(Theme.secondaryAccent)
+                        Toggle("Show XP Pulse Animation", isOn: $menuBarShowPulse)
+                            .tint(Theme.secondaryAccent)
+
+                        HStack {
+                            Text("Default Quick Log Tab")
+                                .foregroundStyle(Theme.textPrimary)
+                            Spacer()
+                            Picker("", selection: $menuBarDefaultTab) {
+                                Text("Fitness").tag("fitness")
+                                Text("Work").tag("work")
+                                Text("Learning").tag("learning")
+                            }
+                            .frame(width: 140)
+                        }
+                    }
+                    .padding(Theme.cardPadding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                // MARK: Launch
+                Card {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("LAUNCH")
+                            .font(.caption).fontWeight(.heavy).tracking(2)
+                            .foregroundStyle(Theme.xpGreen)
+
+                        Toggle("Launch at Login", isOn: $launchAtLogin)
+                            .tint(Theme.xpGreen)
+                            .onChange(of: launchAtLogin) {
+                                LoginItemManager.setEnabled(launchAtLogin)
+                            }
+                        Toggle("Open Main Window at Launch", isOn: $openWindowAtLaunch)
+                            .tint(Theme.xpGreen)
+                        Toggle("Show Launch Notification", isOn: $showLaunchNotification)
+                            .tint(Theme.xpGreen)
+                    }
+                    .padding(Theme.cardPadding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
 
                 // MARK: Danger zone
                 Card {
@@ -127,6 +242,28 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Phase 5 Helpers
+
+    private func settingsToggleWithTime(_ label: String, isOn: Binding<Bool>, hour: Binding<Int>) -> some View {
+        HStack {
+            Toggle(label, isOn: isOn)
+                .tint(Theme.primaryAccent)
+            if isOn.wrappedValue {
+                Picker("", selection: hour) {
+                    ForEach(0..<24, id: \.self) { h in
+                        Text(String(format: "%02d:00", h)).tag(h)
+                    }
+                }
+                .frame(width: 80)
+            }
+        }
+    }
+
+
+    private func rescheduleNotifications() {
+        NotificationManager.shared.rescheduleAll(container: context.container)
+    }
+
     // MARK: - Version
 
     private var appVersion: String {
@@ -175,6 +312,17 @@ struct SettingsView: View {
         // Phase 3 — Gamification
         try? context.delete(model: LoginStreak.self)
         try? context.delete(model: PersonalRecord.self)
+        // Phase 4 — Stats & Analytics
+        try? context.delete(model: OtherWorkLog.self)
+        try? context.delete(model: WeeklyReport.self)
+        // Phase 4.5 — Bonuses & Challenges
+        try? context.delete(model: RankStreakState.self)
+        try? context.delete(model: BalancedDayLog.self)
+        try? context.delete(model: FounderWeekLog.self)
+        try? context.delete(model: WeeklyChallenge.self)
+        try? context.delete(model: BaselineStats.self)
+        try? context.delete(model: SeasonCarryover.self)
+        try? context.delete(model: Achievement.self)
 
         try? context.save()
         hasCompletedOnboarding = false

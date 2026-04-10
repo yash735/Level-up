@@ -13,7 +13,7 @@ import SwiftData
 // MARK: - Sidebar Items
 
 enum SidebarItem: String, CaseIterable, Identifiable {
-    case dashboard, fitness, work, learning, settings
+    case dashboard, fitness, work, learning, stats, settings
 
     var id: String { rawValue }
 
@@ -23,6 +23,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .fitness:   return "Fitness"
         case .work:      return "Work"
         case .learning:  return "Learning"
+        case .stats:     return "Stats"
         case .settings:  return "Settings"
         }
     }
@@ -33,6 +34,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .fitness:   return "figure.run"
         case .work:      return "briefcase.fill"
         case .learning:  return "book.fill"
+        case .stats:     return "chart.bar.fill"
         case .settings:  return "gearshape.fill"
         }
     }
@@ -43,6 +45,7 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .fitness:   return Theme.xpGreen
         case .work:      return Theme.secondaryAccent
         case .learning:  return Theme.primaryAccent
+        case .stats:     return Theme.xpGold
         case .settings:  return Theme.textSecondary
         }
     }
@@ -96,6 +99,7 @@ struct MainNavigationView: View {
         case .fitness:   FitnessView(user: user)
         case .work:      WorkView(user: user)
         case .learning:  LearningView(user: user)
+        case .stats:     StatsView(user: user)
         case .settings:  SettingsView(user: user)
         }
     }

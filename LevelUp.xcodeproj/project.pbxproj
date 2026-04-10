@@ -64,6 +64,24 @@
 		FAB10000FAB10000BBB00038 /* LevelUpOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00038 /* LevelUpOverlay.swift */; };
 		FAB10000FAB10000BBB00039 /* BannerOverlays.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00039 /* BannerOverlays.swift */; };
 		FAB10000FAB10000BBB0003A /* PerfectWeekOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */; };
+		FAB10000FAB10000BBB0003B /* OtherWorkLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003B /* OtherWorkLog.swift */; };
+		FAB10000FAB10000BBB0003C /* WeeklyReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003C /* WeeklyReport.swift */; };
+		FAB10000FAB10000BBB0003D /* OtherWorkTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003D /* OtherWorkTabView.swift */; };
+		FAB10000FAB10000BBB0003E /* WeeklyReportEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003E /* WeeklyReportEngine.swift */; };
+		FAB10000FAB10000BBB0003F /* WeeklyReportOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003F /* WeeklyReportOverlay.swift */; };
+		FAB10000FAB10000BBB00040 /* WeeklyReportRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00040 /* WeeklyReportRoot.swift */; };
+		FAB10000FAB10000BBB00041 /* StatsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00041 /* StatsRepository.swift */; };
+		FAB10000FAB10000BBB00042 /* InsightEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00042 /* InsightEngine.swift */; };
+		FAB10000FAB10000BBB00043 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00043 /* StatsView.swift */; };
+		FAB10000FAB10000BBB00044 /* Phase45Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00044 /* Phase45Models.swift */; };
+		FAB10000FAB10000BBB00045 /* BonusEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00045 /* BonusEngine.swift */; };
+		FAB10000FAB10000BBB00046 /* ChallengeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00046 /* ChallengeManager.swift */; };
+		FAB10000FAB10000BBB00047 /* BaselineCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00047 /* BaselineCalculator.swift */; };
+		FAB10000FAB10000BBB00048 /* SeasonManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00048 /* SeasonManager.swift */; };
+		FAB10000FAB10000BBB00049 /* MenuBarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00049 /* MenuBarManager.swift */; };
+		FAB10000FAB10000BBB0004A /* QuickLogPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004A /* QuickLogPopover.swift */; };
+		FAB10000FAB10000BBB0004B /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004B /* NotificationManager.swift */; };
+		FAB10000FAB10000BBB0004C /* LoginItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004C /* LoginItemManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -126,6 +144,24 @@
 		FAB10000FAB10000FFF00038 /* LevelUpOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelUpOverlay.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF00039 /* BannerOverlays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerOverlays.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfectWeekOverlay.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0003B /* OtherWorkLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherWorkLog.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0003C /* WeeklyReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReport.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0003D /* OtherWorkTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherWorkTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0003E /* WeeklyReportEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0003F /* WeeklyReportOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportOverlay.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00040 /* WeeklyReportRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportRoot.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00041 /* StatsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsRepository.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00042 /* InsightEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00043 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00044 /* Phase45Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase45Models.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00045 /* BonusEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonusEngine.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00046 /* ChallengeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeManager.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00047 /* BaselineCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaselineCalculator.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00048 /* SeasonManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonManager.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00049 /* MenuBarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarManager.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0004A /* QuickLogPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLogPopover.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0004B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0004C /* LoginItemManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +228,9 @@
 				FAB10000FAB10000FFF00017 /* WorkModels.swift */,
 				FAB10000FAB10000FFF00018 /* LearningModels.swift */,
 				FAB10000FAB10000FFF00031 /* Phase3Models.swift */,
+				FAB10000FAB10000FFF0003B /* OtherWorkLog.swift */,
+				FAB10000FAB10000FFF0003C /* WeeklyReport.swift */,
+				FAB10000FAB10000FFF00044 /* Phase45Models.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -210,6 +249,16 @@
 				FAB10000FAB10000FFF00033 /* User+Award.swift */,
 				FAB10000FAB10000FFF00034 /* LoginStreakEngine.swift */,
 				FAB10000FAB10000FFF00035 /* PersonalRecordsEngine.swift */,
+				FAB10000FAB10000FFF0003E /* WeeklyReportEngine.swift */,
+				FAB10000FAB10000FFF00041 /* StatsRepository.swift */,
+				FAB10000FAB10000FFF00042 /* InsightEngine.swift */,
+				FAB10000FAB10000FFF00045 /* BonusEngine.swift */,
+				FAB10000FAB10000FFF00046 /* ChallengeManager.swift */,
+				FAB10000FAB10000FFF00047 /* BaselineCalculator.swift */,
+				FAB10000FAB10000FFF00048 /* SeasonManager.swift */,
+				FAB10000FAB10000FFF00049 /* MenuBarManager.swift */,
+				FAB10000FAB10000FFF0004B /* NotificationManager.swift */,
+				FAB10000FAB10000FFF0004C /* LoginItemManager.swift */,
 			);
 			path = Engines;
 			sourceTree = "<group>";
@@ -239,6 +288,8 @@
 				FAB10000FAB10000AAA0000E /* Fitness */,
 				FAB10000FAB10000AAA0000F /* Work */,
 				FAB10000FAB10000AAA00010 /* Learning */,
+				FAB10000FAB10000AAA00012 /* Stats */,
+				FAB10000FAB10000AAA00013 /* MenuBar */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -261,6 +312,8 @@
 				FAB10000FAB10000FFF00038 /* LevelUpOverlay.swift */,
 				FAB10000FAB10000FFF00039 /* BannerOverlays.swift */,
 				FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */,
+				FAB10000FAB10000FFF0003F /* WeeklyReportOverlay.swift */,
+				FAB10000FAB10000FFF00040 /* WeeklyReportRoot.swift */,
 			);
 			path = Overlays;
 			sourceTree = "<group>";
@@ -283,6 +336,7 @@
 				FAB10000FAB10000FFF00027 /* WorkView.swift */,
 				FAB10000FAB10000FFF00028 /* ParaLAITabView.swift */,
 				FAB10000FAB10000FFF00029 /* BVATabView.swift */,
+				FAB10000FAB10000FFF0003D /* OtherWorkTabView.swift */,
 			);
 			path = Work;
 			sourceTree = "<group>";
@@ -330,6 +384,22 @@
 				FAB10000FAB10000FFF00013 /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00012 /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF00043 /* StatsView.swift */,
+			);
+			path = Stats;
+			sourceTree = "<group>";
+		};
+		FAB10000FAB10000AAA00013 /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				FAB10000FAB10000FFF0004A /* QuickLogPopover.swift */,
+			);
+			path = MenuBar;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -457,6 +527,24 @@
 				FAB10000FAB10000BBB00038 /* LevelUpOverlay.swift in Sources */,
 				FAB10000FAB10000BBB00039 /* BannerOverlays.swift in Sources */,
 				FAB10000FAB10000BBB0003A /* PerfectWeekOverlay.swift in Sources */,
+				FAB10000FAB10000BBB0003B /* OtherWorkLog.swift in Sources */,
+				FAB10000FAB10000BBB0003C /* WeeklyReport.swift in Sources */,
+				FAB10000FAB10000BBB0003D /* OtherWorkTabView.swift in Sources */,
+				FAB10000FAB10000BBB0003E /* WeeklyReportEngine.swift in Sources */,
+				FAB10000FAB10000BBB0003F /* WeeklyReportOverlay.swift in Sources */,
+				FAB10000FAB10000BBB00040 /* WeeklyReportRoot.swift in Sources */,
+				FAB10000FAB10000BBB00041 /* StatsRepository.swift in Sources */,
+				FAB10000FAB10000BBB00042 /* InsightEngine.swift in Sources */,
+				FAB10000FAB10000BBB00043 /* StatsView.swift in Sources */,
+				FAB10000FAB10000BBB00044 /* Phase45Models.swift in Sources */,
+				FAB10000FAB10000BBB00045 /* BonusEngine.swift in Sources */,
+				FAB10000FAB10000BBB00046 /* ChallengeManager.swift in Sources */,
+				FAB10000FAB10000BBB00047 /* BaselineCalculator.swift in Sources */,
+				FAB10000FAB10000BBB00048 /* SeasonManager.swift in Sources */,
+				FAB10000FAB10000BBB00049 /* MenuBarManager.swift in Sources */,
+				FAB10000FAB10000BBB0004A /* QuickLogPopover.swift in Sources */,
+				FAB10000FAB10000BBB0004B /* NotificationManager.swift in Sources */,
+				FAB10000FAB10000BBB0004C /* LoginItemManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

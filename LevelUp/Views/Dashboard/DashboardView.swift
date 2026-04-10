@@ -31,6 +31,11 @@ struct DashboardView: View {
     @Query private var courses: [Course]
     @Query private var books: [Book]
     @Query private var certifications: [Certification]
+    @Query(sort: \LearningLog.date, order: .reverse) private var learningLogs: [LearningLog]
+    @Query(sort: \WeeklyChallenge.weekStartDate, order: .reverse) private var allChallenges: [WeeklyChallenge]
+
+    @AppStorage("weeklyStudyHoursTarget") private var weeklyStudyHoursTarget = 10
+    @Query private var achievements: [Achievement]
 
     // Rebuilt on every render — value-type VM stays in sync with @Query.
     private var vm: DashboardViewModel {
@@ -61,8 +66,11 @@ struct DashboardView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 32) {
                 header
+                multiplierBadge
                 heroRow
                 trackCards
+                activeChallengesSection
+                phase45StatusRow
                 recordsSection
                 recentUnlocksSection
                 nextUnlocksSection
@@ -87,6 +95,18 @@ struct DashboardView: View {
             // Phase 3: award the daily login bonus (idempotent — only
             // fires once per calendar day).
             LoginStreakEngine.awardIfNeeded(user: user, in: context)
+
+            // Phase 4.5: seed achievements, check balanced day, update challenges
+            BonusEngine.seedAchievements(into: context)
+            BonusEngine.checkBalancedDay(user: user, in: context)
+            ChallengeManager.updateProgress(user: user, in: context)
+
+            // Sync active multiplier to user
+            let mult = BonusEngine.activeMultiplier(in: context)
+            if user.resolvedMultiplier != mult {
+                user.resolvedMultiplier = mult
+                try? context.save()
+            }
         }
     }
 
@@ -156,6 +176,179 @@ struct DashboardView: View {
             Text("\(user.totalXP.formatted()) TOTAL XP")
                 .font(.subheadline).monospacedDigit().fontWeight(.heavy).tracking(2)
                 .foregroundStyle(Theme.xpGreen)
+        }
+    }
+
+    // MARK: - XP Multiplier Badge
+
+    @ViewBuilder
+    private var multiplierBadge: some View {
+        if user.resolvedMultiplier > 1.0 {
+            let days = BonusEngine.multiplierDaysRemaining(in: context)
+            HStack(spacing: 12) {
+                Image(systemName: "bolt.fill")
+                    .font(.title2)
+                    .foregroundStyle(Theme.xpGold)
+                Text("\(String(format: "%.0f", user.resolvedMultiplier))x XP ACTIVE")
+                    .font(.subheadline).fontWeight(.heavy).tracking(2)
+                    .foregroundStyle(Theme.xpGold)
+                if days > 0 {
+                    Text("· \(days)d remaining")
+                        .font(.caption).fontWeight(.semibold)
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                Spacer()
+            }
+            .padding(14)
+            .background(Theme.xpGold.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Theme.xpGold.opacity(0.4), lineWidth: 1.5)
+            )
+        }
+    }
+
+    // MARK: - Active Challenges
+
+    @ViewBuilder
+    private var activeChallengesSection: some View {
+        let active = allChallenges.filter { !$0.isCompleted && !$0.isFailed }
+        if !active.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                SectionHeader(title: "Active Challenges")
+                VStack(spacing: 10) {
+                    ForEach(active) { challenge in
+                        Card {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text(challenge.tierLabel)
+                                        .font(.caption2).fontWeight(.heavy).tracking(1)
+                                        .foregroundStyle(challenge.tier >= 3 ? Theme.xpGold : Theme.primaryAccent)
+                                        .padding(.horizontal, 8).padding(.vertical, 3)
+                                        .background((challenge.tier >= 3 ? Theme.xpGold : Theme.primaryAccent).opacity(0.15))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+
+                                    if challenge.isMegaChallenge {
+                                        Text("MEGA")
+                                            .font(.caption2).fontWeight(.heavy).tracking(1)
+                                            .foregroundStyle(.purple)
+                                            .padding(.horizontal, 8).padding(.vertical, 3)
+                                            .background(Color.purple.opacity(0.15))
+                                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                    }
+
+                                    Spacer()
+
+                                    Text("+\(challenge.xpReward) XP")
+                                        .font(.caption).fontWeight(.heavy).monospacedDigit()
+                                        .foregroundStyle(Theme.xpGreen)
+                                }
+
+                                Text(challenge.title)
+                                    .font(.subheadline).fontWeight(.semibold)
+                                    .foregroundStyle(Theme.textPrimary)
+
+                                Text(challenge.challengeDescription)
+                                    .font(.caption)
+                                    .foregroundStyle(Theme.textSecondary)
+
+                                ProgressBar(progress: challenge.progress,
+                                            color: challenge.tier >= 3 ? Theme.xpGold : Theme.primaryAccent)
+
+                                HStack {
+                                    Text(String(format: "%.1f / %.1f", challenge.currentValue, challenge.targetValue))
+                                        .font(.caption).monospacedDigit()
+                                        .foregroundStyle(Theme.textSecondary)
+                                    Spacer()
+                                    Text("\(Int(challenge.progress * 100))%")
+                                        .font(.caption).fontWeight(.heavy).monospacedDigit()
+                                        .foregroundStyle(challenge.progress >= 1 ? Theme.xpGreen : Theme.textSecondary)
+                                }
+                            }
+                            .padding(Theme.cardPadding)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Phase 4.5 Status Row
+
+    private var phase45StatusRow: some View {
+        HStack(spacing: 16) {
+            // Balanced day streak
+            Card {
+                VStack(spacing: 8) {
+                    Image(systemName: "scale.3d")
+                        .font(.title2)
+                        .foregroundStyle(Theme.xpGreen)
+                    Text("\(BonusEngine.balancedDayStreak(in: context))")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text("BALANCED\nSTREAK")
+                        .font(.caption2).fontWeight(.heavy).tracking(1)
+                        .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(Theme.cardPadding)
+            }
+
+            // Founder week count
+            Card {
+                VStack(spacing: 8) {
+                    Image(systemName: "crown.fill")
+                        .font(.title2)
+                        .foregroundStyle(Theme.xpGold)
+                    Text("\(BonusEngine.founderWeekCount(in: context))")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text("FOUNDER\nWEEKS")
+                        .font(.caption2).fontWeight(.heavy).tracking(1)
+                        .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(Theme.cardPadding)
+            }
+
+            // Challenge streak
+            Card {
+                VStack(spacing: 8) {
+                    Image(systemName: "bolt.fill")
+                        .font(.title2)
+                        .foregroundStyle(Theme.primaryAccent)
+                    Text("\(ChallengeManager.consecutiveChallengesCompleted(in: context))")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text("CHALLENGE\nSTREAK")
+                        .font(.caption2).fontWeight(.heavy).tracking(1)
+                        .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(Theme.cardPadding)
+            }
+
+            // Achievements earned
+            Card {
+                VStack(spacing: 8) {
+                    Image(systemName: "medal.fill")
+                        .font(.title2)
+                        .foregroundStyle(Theme.secondaryAccent)
+                    Text("\(achievements.filter(\.isEarned).count)")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text("ACHIEVE-\nMENTS")
+                        .font(.caption2).fontWeight(.heavy).tracking(1)
+                        .foregroundStyle(Theme.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(Theme.cardPadding)
+            }
         }
     }
 
@@ -261,11 +454,22 @@ struct DashboardView: View {
         ]
     }
 
+    private var studyHoursThisWeek: Double {
+        let cal = Calendar.current
+        let weekStart = cal.dateInterval(of: .weekOfYear, for: .now)?.start ?? cal.startOfDay(for: .now)
+        return learningLogs
+            .filter { $0.date >= weekStart }
+            .reduce(0) { $0 + $1.hoursStudied }
+    }
+
     private var learningMetrics: [XPTrackCard.Metric] {
-        [
+        let hit = studyHoursThisWeek >= Double(weeklyStudyHoursTarget)
+        return [
             .init(label: "COURSES", value: "\(learningVM.coursesInProgress.count) active"),
             .init(label: "BOOKS",   value: "\(learningVM.booksInProgress.count) reading"),
-            .init(label: "CERTS",   value: "\(learningVM.earnedCertifications.count) earned")
+            .init(label: "STUDY",
+                  value: String(format: "%.0f/%d hrs", studyHoursThisWeek, weeklyStudyHoursTarget),
+                  tint: hit ? Theme.xpGreen : nil)
         ]
     }
 
