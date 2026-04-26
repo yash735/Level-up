@@ -75,9 +75,9 @@ struct StatsView: View {
     @Query(sort: \FoodEntry.date) private var foodEntries: [FoodEntry]
     @Query(sort: \WeightEntry.date) private var weightEntries: [WeightEntry]
     @Query(sort: \HabitLog.date) private var habitLogs: [HabitLog]
-    @Query(sort: \Deal.updatedAt, order: .reverse) private var deals: [Deal]
-    @Query(sort: \ParaLAIEntry.date) private var paralaiEntries: [ParaLAIEntry]
-    @Query(sort: \ParaLAIMilestone.orderIndex) private var milestones: [ParaLAIMilestone]
+    @Query(sort: \Project.orderIndex) private var projects: [Project]
+    @Query(sort: \WorkEntry.date) private var workEntries: [WorkEntry]
+    @Query(sort: \ProjectMilestone.orderIndex) private var projectMilestones: [ProjectMilestone]
     @Query(sort: \OtherWorkLog.date) private var otherWorkLogs: [OtherWorkLog]
     @Query(sort: \Course.name) private var courses: [Course]
     @Query(sort: \Book.title) private var books: [Book]
@@ -200,7 +200,7 @@ struct StatsView: View {
                 overviewCard("UNLOCKS", "\(earned)/\(totalUnlocks)", Theme.primaryAccent)
                 overviewCard("LONGEST STREAK", "\(user.longestStreak)", Theme.flameHot)
                 overviewCard("TOTAL WORKOUTS", "\(totalWorkouts)", Theme.xpGreen)
-                overviewCard("TOTAL DEALS", "\(deals.count)", Theme.secondaryAccent)
+                overviewCard("PROJECTS", "\(projects.filter { !$0.isArchived }.count)", Theme.secondaryAccent)
                 overviewCard("STUDY HOURS", String(format: "%.0f", totalStudyHours), Theme.primaryAccent)
                 overviewCard("WEEKLY REPORTS", "\(weeklyReports.count)", Theme.textSecondary)
                 overviewCard("PERSONAL RECORDS", "\(records.count)", Theme.xpGold)
@@ -615,182 +615,53 @@ struct StatsView: View {
 
     private var workSection: some View {
         VStack(alignment: .leading, spacing: 24) {
-            // BVA Pipeline
-            if !deals.isEmpty {
-                bvaPipelineChart
-                bvaDealVelocity
+            // Top Projects by Hours
+            if !workEntries.isEmpty {
+                topProjectsByHours
             }
 
-            // ParaLAI Progress
-            if !milestones.isEmpty {
-                paralaiProgress
+            // Milestone Progress
+            if !projectMilestones.isEmpty {
+                milestoneProgress
             }
 
-            // Other Work
-            if !otherWorkLogs.isEmpty {
-                otherWorkAnalytics
+            // Action Type Breakdown
+            if !workEntries.isEmpty {
+                actionTypeBreakdown
             }
 
             // Work PRs
             workPersonalRecords
 
-            if deals.isEmpty && paralaiEntries.isEmpty && otherWorkLogs.isEmpty {
+            if workEntries.isEmpty && otherWorkLogs.isEmpty {
                 emptyState("Start logging work to see your productivity trends", icon: "briefcase.fill")
             }
         }
     }
 
-    // -- BVA Pipeline
-    private var bvaPipelineChart: some View {
-        let stages = ["Prospecting", "Initial Contact", "Due Diligence",
-                      "Term Sheet", "Closing", "Closed Won"]
-        let stageCounts = stages.map { stage in
-            deals.filter { $0.stage == stage }.count
-        }
-        let stageValues = stages.map { stage in
-            deals.filter { $0.stage == stage }.reduce(0.0) { $0 + $1.dealSizeMillion }
-        }
-
-        return Card {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("BVA PIPELINE")
-                    .font(.caption).fontWeight(.heavy).tracking(2)
-                    .foregroundStyle(Theme.textSecondary)
-
-                ForEach(Array(zip(stages, zip(stageCounts, stageValues))), id: \.0) { stage, data in
-                    let (count, value) = data
-                    HStack(spacing: 12) {
-                        Text(stage)
-                            .font(.caption).fontWeight(.semibold)
-                            .foregroundStyle(Theme.textPrimary)
-                            .frame(width: 120, alignment: .leading)
-                        GeometryReader { geo in
-                            let maxCount = max(1, stageCounts.max() ?? 1)
-                            let width = geo.size.width * CGFloat(count) / CGFloat(maxCount)
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                .fill(Theme.secondaryAccent.opacity(0.6))
-                                .frame(width: max(4, width))
-                        }
-                        .frame(height: 20)
-                        Text("\(count) · $\(String(format: "%.1fM", value))")
-                            .font(.caption2).monospacedDigit()
-                            .foregroundStyle(Theme.textSecondary)
-                            .frame(width: 100, alignment: .trailing)
-                    }
-                }
-            }
-            .padding(Theme.cardPadding)
-        }
-    }
-
-    // -- Deal velocity
-    private var bvaDealVelocity: some View {
-        let wonDeals = deals.filter { $0.isClosedWon }
-        let lostDeals = deals.filter { $0.isClosedLost }
-        let winRate = (wonDeals.count + lostDeals.count) > 0
-            ? Double(wonDeals.count) / Double(wonDeals.count + lostDeals.count) * 100
-            : 0
-
-        return Card {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("DEAL METRICS")
-                    .font(.caption).fontWeight(.heavy).tracking(2)
-                    .foregroundStyle(Theme.textSecondary)
-                HStack(spacing: 24) {
-                    VStack(spacing: 4) {
-                        Text("\(deals.count)").font(.system(size: 28, weight: .heavy, design: .rounded))
-                            .foregroundStyle(Theme.secondaryAccent)
-                        Text("TOTAL DEALS").font(.caption2).fontWeight(.heavy).tracking(1)
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                    VStack(spacing: 4) {
-                        Text("\(wonDeals.count)").font(.system(size: 28, weight: .heavy, design: .rounded))
-                            .foregroundStyle(Theme.xpGreen)
-                        Text("WON").font(.caption2).fontWeight(.heavy).tracking(1)
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                    VStack(spacing: 4) {
-                        Text(String(format: "%.0f%%", winRate))
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
-                            .foregroundStyle(winRate >= 50 ? Theme.xpGreen : Theme.flameHot)
-                        Text("WIN RATE").font(.caption2).fontWeight(.heavy).tracking(1)
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                    VStack(spacing: 4) {
-                        Text(String(format: "$%.1fM", wonDeals.reduce(0.0) { $0 + $1.dealSizeMillion }))
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
-                            .foregroundStyle(Theme.xpGold)
-                        Text("WON VALUE").font(.caption2).fontWeight(.heavy).tracking(1)
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-            }
-            .padding(Theme.cardPadding)
-        }
-    }
-
-    // -- ParaLAI progress
-    private var paralaiProgress: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 14) {
-                Text("PARALAI MILESTONES")
-                    .font(.caption).fontWeight(.heavy).tracking(2)
-                    .foregroundStyle(Theme.textSecondary)
-
-                HStack(spacing: 0) {
-                    ForEach(milestones.sorted { $0.orderIndex < $1.orderIndex }) { m in
-                        VStack(spacing: 6) {
-                            ZStack {
-                                Circle()
-                                    .fill(m.isCompleted ? Theme.primaryAccent : Theme.cardBorder)
-                                    .frame(width: 24, height: 24)
-                                if m.isCompleted {
-                                    Image(systemName: "checkmark")
-                                        .font(.caption2).bold()
-                                        .foregroundStyle(.white)
-                                }
-                            }
-                            Text("M\(m.orderIndex + 1)")
-                                .font(.caption2).fontWeight(.heavy)
-                                .foregroundStyle(m.isCompleted ? Theme.primaryAccent : Theme.textSecondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                }
-
-                let completed = milestones.filter { $0.isCompleted }.count
-                Text("\(completed)/\(milestones.count) milestones completed")
-                    .font(.caption).foregroundStyle(Theme.textSecondary)
-            }
-            .padding(Theme.cardPadding)
-        }
-    }
-
-    // -- Other work analytics
-    private var otherWorkAnalytics: some View {
+    // -- Top Projects by Hours
+    private var topProjectsByHours: some View {
         let start = timeRange.startDate
-        let filtered = otherWorkLogs.filter { $0.date >= start }
+        let filtered = workEntries.filter { $0.date >= start }
 
-        // Top projects by hours
         var projectHours: [String: Double] = [:]
-        for log in filtered {
-            projectHours[log.projectName, default: 0] += log.hoursSpent
+        for entry in filtered {
+            let name = entry.project?.name ?? "Unassigned"
+            projectHours[name, default: 0] += entry.hoursSpent
         }
         let sortedProjects = projectHours.sorted { $0.value > $1.value }.prefix(8)
         let maxHours = sortedProjects.first?.value ?? 1
 
-        // Action type breakdown
-        var typeCounts: [String: Int] = [:]
-        for log in filtered { typeCounts[log.actionType, default: 0] += 1 }
+        return Card {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("TOP PROJECTS BY HOURS")
+                    .font(.caption).fontWeight(.heavy).tracking(2)
+                    .foregroundStyle(Theme.textSecondary)
 
-        return VStack(alignment: .leading, spacing: 16) {
-            Card {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("TOP PROJECTS BY HOURS")
-                        .font(.caption).fontWeight(.heavy).tracking(2)
-                        .foregroundStyle(Theme.textSecondary)
-
+                if sortedProjects.isEmpty {
+                    Text("No work entries in this range.")
+                        .font(.subheadline).foregroundStyle(Theme.textSecondary)
+                } else {
                     ForEach(Array(sortedProjects), id: \.key) { project, hours in
                         HStack(spacing: 12) {
                             Text(project)
@@ -811,28 +682,98 @@ struct StatsView: View {
                         }
                     }
                 }
-                .padding(Theme.cardPadding)
             }
+            .padding(Theme.cardPadding)
+        }
+    }
 
-            Card {
-                VStack(alignment: .leading, spacing: 14) {
-                    Text("ACTION TYPE BREAKDOWN")
-                        .font(.caption).fontWeight(.heavy).tracking(2)
-                        .foregroundStyle(Theme.textSecondary)
+    // -- Milestone Progress
+    private var milestoneProgress: some View {
+        let completed = projectMilestones.filter { $0.isCompleted }.count
+        let total = projectMilestones.count
 
-                    let total = max(1, typeCounts.values.reduce(0, +))
-                    ForEach(typeCounts.sorted { $0.value > $1.value }, id: \.key) { type, count in
-                        HStack {
-                            Text(type).font(.caption).foregroundStyle(Theme.textPrimary)
-                            Spacer()
-                            Text("\(count) · \(Int(Double(count) / Double(total) * 100))%")
-                                .font(.caption).monospacedDigit()
-                                .foregroundStyle(Theme.textSecondary)
-                        }
+        // Group milestones by project
+        var byProject: [String: (completed: Int, total: Int)] = [:]
+        for m in projectMilestones {
+            let name = m.project?.name ?? "Unassigned"
+            byProject[name, default: (0, 0)].total += 1
+            if m.isCompleted { byProject[name, default: (0, 0)].completed += 1 }
+        }
+
+        return Card {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("MILESTONE PROGRESS")
+                    .font(.caption).fontWeight(.heavy).tracking(2)
+                    .foregroundStyle(Theme.textSecondary)
+
+                HStack(spacing: 24) {
+                    VStack(spacing: 4) {
+                        Text("\(completed)").font(.system(size: 28, weight: .heavy, design: .rounded))
+                            .foregroundStyle(Theme.primaryAccent)
+                        Text("COMPLETED").font(.caption2).fontWeight(.heavy).tracking(1)
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    VStack(spacing: 4) {
+                        Text("\(total)").font(.system(size: 28, weight: .heavy, design: .rounded))
+                            .foregroundStyle(Theme.secondaryAccent)
+                        Text("TOTAL").font(.caption2).fontWeight(.heavy).tracking(1)
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    VStack(spacing: 4) {
+                        Text(total > 0 ? String(format: "%.0f%%", Double(completed) / Double(total) * 100) : "—")
+                            .font(.system(size: 28, weight: .heavy, design: .rounded))
+                            .foregroundStyle(completed == total && total > 0 ? Theme.xpGreen : Theme.flameHot)
+                        Text("RATE").font(.caption2).fontWeight(.heavy).tracking(1)
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
-                .padding(Theme.cardPadding)
+                .frame(maxWidth: .infinity)
+
+                ForEach(byProject.sorted { $0.key < $1.key }, id: \.key) { name, data in
+                    HStack(spacing: 12) {
+                        Text(name)
+                            .font(.caption).fontWeight(.semibold)
+                            .foregroundStyle(Theme.textPrimary)
+                            .frame(width: 160, alignment: .leading)
+                            .lineLimit(1)
+                        ProgressView(value: data.total > 0 ? Double(data.completed) / Double(data.total) : 0)
+                            .tint(data.completed == data.total ? Theme.xpGreen : Theme.primaryAccent)
+                        Text("\(data.completed)/\(data.total)")
+                            .font(.caption2).monospacedDigit()
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                }
             }
+            .padding(Theme.cardPadding)
+        }
+    }
+
+    // -- Action Type Breakdown
+    private var actionTypeBreakdown: some View {
+        let start = timeRange.startDate
+        let filtered = workEntries.filter { $0.date >= start }
+
+        var typeCounts: [String: Int] = [:]
+        for entry in filtered { typeCounts[entry.actionType, default: 0] += 1 }
+
+        return Card {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("ACTION TYPE BREAKDOWN")
+                    .font(.caption).fontWeight(.heavy).tracking(2)
+                    .foregroundStyle(Theme.textSecondary)
+
+                let total = max(1, typeCounts.values.reduce(0, +))
+                ForEach(typeCounts.sorted { $0.value > $1.value }, id: \.key) { type, count in
+                    HStack {
+                        Text(type).font(.caption).foregroundStyle(Theme.textPrimary)
+                        Spacer()
+                        Text("\(count) · \(Int(Double(count) / Double(total) * 100))%")
+                            .font(.caption).monospacedDigit()
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                }
+            }
+            .padding(Theme.cardPadding)
         }
     }
 
@@ -1141,7 +1082,6 @@ struct StatsView: View {
 
     // -- XP Timeline
     private var xpTimeline: some View {
-        let cal = Calendar.current
         let start = timeRange.startDate
         let fmt = DateFormatter()
         fmt.dateFormat = "yyyy-MM-dd"
@@ -1160,13 +1100,9 @@ struct StatsView: View {
             let key = fmt.string(from: f.date)
             dayMap[key, default: (0,0,0)].f += f.xpEarned
         }
-        for e in paralaiEntries.filter({ $0.date >= start }) {
-            let key = fmt.string(from: e.date)
-            dayMap[key, default: (0,0,0)].w += e.xpEarned
-        }
-        for o in otherWorkLogs.filter({ $0.date >= start }) {
-            let key = fmt.string(from: o.date)
-            dayMap[key, default: (0,0,0)].w += o.xpEarned
+        for w in workEntries.filter({ $0.date >= start }) {
+            let key = fmt.string(from: w.date)
+            dayMap[key, default: (0,0,0)].w += w.xpEarned
         }
 
         let sorted = dayMap.map { key, val in
@@ -1216,9 +1152,7 @@ struct StatsView: View {
             cardioSessions: cardioSessions,
             foodEntries: foodEntries,
             habitLogs: habitLogs,
-            deals: deals,
-            paralaiEntries: paralaiEntries,
-            otherWorkLogs: otherWorkLogs,
+            workEntries: workEntries,
             courses: courses,
             books: books,
             user: user
@@ -1324,13 +1258,14 @@ struct StatsView: View {
         dict["weightEntries"] = weight
 
         // Work
-        let otherWork = repo.allOtherWorkLogs().map { o in
-            ["date": ISO8601DateFormatter().string(from: o.date),
-             "project": o.projectName, "type": o.actionType,
-             "title": o.title, "hours": o.hoursSpent,
-             "xp": o.xpEarned] as [String: Any]
+        let work = repo.allWorkEntries().map { w in
+            ["date": ISO8601DateFormatter().string(from: w.date),
+             "project": w.project?.name ?? "Unassigned",
+             "actionType": w.actionType,
+             "title": w.title, "hours": w.hoursSpent,
+             "xp": w.xpEarned] as [String: Any]
         }
-        dict["otherWorkLogs"] = otherWork
+        dict["workEntries"] = work
 
         // Serialize
         guard let jsonData = try? JSONSerialization.data(withJSONObject: dict,

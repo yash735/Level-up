@@ -128,6 +128,32 @@ enum PersonalRecordsEngine {
         }
     }
 
+    // MARK: - Work records (project-based)
+
+    /// Call when a work entry is logged. Tracks the longest single work session.
+    @MainActor
+    static func evaluateLongestWorkSession(hours: Double,
+                                           projectName: String,
+                                           in context: ModelContext) {
+        guard hours > 0 else { return }
+        let key = "longest-work-session"
+        let prev = previousBest(key: key, in: context)
+        let prevHours = Double(prev?.value.split(separator: " ").first ?? "0") ?? 0
+
+        if hours > prevHours {
+            let valueStr = String(format: "%.1f hrs", hours)
+            let record = PersonalRecord(key: key,
+                                        track: "Work",
+                                        title: "Longest Work Session: \(projectName)",
+                                        value: valueStr)
+            context.insert(record)
+            try? context.save()
+            GameEventCenter.shared.fireRecord(track: .work,
+                                              title: record.title,
+                                              value: record.value)
+        }
+    }
+
     // MARK: - Learning records
 
     /// Call when a study session is logged. `minutes` is raw duration.

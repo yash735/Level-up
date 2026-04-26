@@ -38,17 +38,12 @@ enum BaselineCalculator {
         let recentGym = allGym.filter { $0.date >= fourWeeksAgo && $0.date < weekStart && !$0.isRestDay }
         let avgGymSessions = Double(recentGym.count) / 4.0
 
-        // Work hours (ParaLAI + OtherWorkLog)
-        let paralaiDesc = FetchDescriptor<ParaLAIEntry>()
-        let allParalai = (try? context.fetch(paralaiDesc)) ?? []
-        let recentParalai = allParalai.filter { $0.date >= fourWeeksAgo && $0.date < weekStart }
-        let paralaiHours = recentParalai.reduce(0.0) { $0 + $1.hoursSpent }
-
-        let otherDesc = FetchDescriptor<OtherWorkLog>()
-        let allOther = (try? context.fetch(otherDesc)) ?? []
-        let recentOther = allOther.filter { $0.date >= fourWeeksAgo && $0.date < weekStart }
-        let otherHours = recentOther.reduce(0.0) { $0 + $1.hoursSpent }
-        let avgWorkHours = (paralaiHours + otherHours) / 4.0
+        // Work hours (WorkEntry)
+        let workEntryDesc = FetchDescriptor<WorkEntry>()
+        let allWorkEntries = (try? context.fetch(workEntryDesc)) ?? []
+        let recentWork = allWorkEntries.filter { $0.date >= fourWeeksAgo && $0.date < weekStart }
+        let totalWorkHours = recentWork.reduce(0.0) { $0 + $1.hoursSpent }
+        let avgWorkHours = totalWorkHours / 4.0
 
         // Study hours
         let courseDesc = FetchDescriptor<Course>()
@@ -67,11 +62,9 @@ enum BaselineCalculator {
             avgHabitsRate = Double(completed) / Double(recentHabits.count)
         }
 
-        // BVA actions
-        let dealDesc = FetchDescriptor<Deal>()
-        let allDeals = (try? context.fetch(dealDesc)) ?? []
-        let recentDeals = allDeals.filter { $0.updatedAt >= fourWeeksAgo && $0.updatedAt < weekStart }
-        let avgBVAActions = Double(recentDeals.count) / 4.0
+        // Deep work sessions
+        let recentDeepWork = recentWork.filter { $0.actionType == "Deep Work" }
+        let avgDeepWorkSessions = Double(recentDeepWork.count) / 4.0
 
         let baseline = BaselineStats(
             weekOf: startOfWeekDay,
@@ -79,7 +72,8 @@ enum BaselineCalculator {
             avgGymSessions: avgGymSessions,
             avgStudyHours: avgStudyHours,
             avgHabitsRate: avgHabitsRate,
-            avgBVAActions: avgBVAActions
+            avgBVAActions: 0,
+            avgDeepWorkSessions: avgDeepWorkSessions
         )
         context.insert(baseline)
         try? context.save()

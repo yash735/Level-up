@@ -90,7 +90,7 @@ final class FounderWeekLog {
 final class WeeklyChallenge {
     var id: UUID
     var weekStartDate: Date
-    /// "work_hours", "gym_sessions", "study_hours", "bva", "habits",
+    /// "work_hours", "gym_sessions", "study_hours", "deep_work", "habits",
     /// "combined", "monthly_mega"
     var challengeType: String
     var title: String
@@ -154,10 +154,12 @@ final class BaselineStats {
     var avgStudyHours: Double
     var avgHabitsRate: Double
     var avgBVAActions: Double
+    /// Average deep work sessions per week (trailing 4-week).
+    var avgDeepWorkSessions: Double
 
     init(weekOf: Date, avgWorkHours: Double = 0, avgGymSessions: Double = 0,
          avgStudyHours: Double = 0, avgHabitsRate: Double = 0,
-         avgBVAActions: Double = 0) {
+         avgBVAActions: Double = 0, avgDeepWorkSessions: Double = 0) {
         self.id = UUID()
         self.weekOf = weekOf
         self.avgWorkHours = avgWorkHours
@@ -165,6 +167,7 @@ final class BaselineStats {
         self.avgStudyHours = avgStudyHours
         self.avgHabitsRate = avgHabitsRate
         self.avgBVAActions = avgBVAActions
+        self.avgDeepWorkSessions = avgDeepWorkSessions
     }
 }
 

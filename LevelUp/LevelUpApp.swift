@@ -49,6 +49,10 @@ struct LevelUpApp: App {
         // Phase 4 — Stats & Analytics
         OtherWorkLog.self,
         WeeklyReport.self,
+        // Unified Work — Projects
+        Project.self,
+        ProjectMilestone.self,
+        WorkEntry.self,
         // Phase 4.5 — Bonuses & Challenges
         RankStreakState.self,
         BalancedDayLog.self,

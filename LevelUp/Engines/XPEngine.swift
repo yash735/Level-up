@@ -123,6 +123,14 @@ enum XPEngine {
 
     // MARK: - Work XP Rules
 
+    static let xpForProjectMilestone = 300
+
+    static func xpForWorkEntry(hours: Double, actionType: String) -> Int {
+        WorkEntry.calculateXP(hours: hours, actionType: actionType)
+    }
+
+    // MARK: - Legacy (kept for schema compat, unused in new code)
+
     static let xpForParaLAIFeature      = 100
     static let xpForParaLAIBug          = 40
     static let xpForParaLAIMilestone    = 300

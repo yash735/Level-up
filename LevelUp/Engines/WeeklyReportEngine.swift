@@ -53,9 +53,8 @@ enum WeeklyReportEngine {
         let fitnessXP = gymXP + cardioXP + foodXP + weightXP + habitXP
 
         // Work queries
-        let bvaActions = countDeals(from: weekStart, to: weekEnd, in: context)
-        let paralaiLogs = countParaLAI(from: weekStart, to: weekEnd, in: context)
-        let otherHours = sumOtherWorkHours(from: weekStart, to: weekEnd, in: context)
+        let workEntriesCount = countWorkEntries(from: weekStart, to: weekEnd, in: context)
+        let otherHours = sumWorkEntryHours(from: weekStart, to: weekEnd, in: context)
         let workXP = sumWorkXP(from: weekStart, to: weekEnd, in: context)
 
         // Learning queries
@@ -82,15 +81,14 @@ enum WeeklyReportEngine {
                                    gymSessions: gymCount,
                                    totalXP: totalXP,
                                    studyHours: studyHours,
-                                   bvaActions: bvaActions + paralaiLogs)
+                                   workEntries: workEntriesCount)
 
         // Summary
         let summary = generateSummary(workouts: workoutsCompleted,
                                       gymSessions: gymCount,
-                                      bvaActions: bvaActions,
-                                      paralaiLogs: paralaiLogs,
+                                      workEntries: workEntriesCount,
                                       studyHours: studyHours,
-                                      otherHours: otherHours)
+                                      workHours: otherHours)
 
         let report = WeeklyReport(
             weekStartDate: weekStart,
@@ -101,14 +99,15 @@ enum WeeklyReportEngine {
             learningXP: learningXP,
             workoutsCompleted: workoutsCompleted,
             gymSessionsCompleted: gymCount,
-            bvaActionsCount: bvaActions,
-            paralaiLogsCount: paralaiLogs,
+            bvaActionsCount: 0,
+            paralaiLogsCount: 0,
             otherWorkHours: otherHours,
             studyHours: studyHours,
             habitsCompletionRate: habitsRate,
             xpChangeVsLastWeek: xpChange,
             grade: grade,
-            summaryText: summary
+            summaryText: summary,
+            workEntriesCount: workEntriesCount
         )
         context.insert(report)
         try? context.save()
@@ -116,8 +115,8 @@ enum WeeklyReportEngine {
         // Phase 4.5: Process rank streak bonuses
         BonusEngine.processWeeklyRank(grade: grade, user: user, in: context)
 
-        // Phase 4.5: Check founder week
-        BonusEngine.checkFounderWeek(user: user, in: context)
+        // Phase 4.5: Check builder week
+        BonusEngine.checkBuilderWeek(user: user, in: context)
 
         // Phase 4.5: Calculate baseline + generate challenges
         _ = BaselineCalculator.calculateIfNeeded(in: context)
@@ -133,7 +132,7 @@ enum WeeklyReportEngine {
                                        gymSessions: Int,
                                        totalXP: Int,
                                        studyHours: Double,
-                                       bvaActions: Int) -> String {
+                                       workEntries: Int) -> String {
         var score = 0
         // Fitness (max 4)
         score += min(4, workouts)
@@ -142,9 +141,9 @@ enum WeeklyReportEngine {
         else if gymSessions >= 3 { score += 2 }
         else if gymSessions >= 1 { score += 1 }
         // Work activity (max 3)
-        if bvaActions >= 5 { score += 3 }
-        else if bvaActions >= 3 { score += 2 }
-        else if bvaActions >= 1 { score += 1 }
+        if workEntries >= 5 { score += 3 }
+        else if workEntries >= 3 { score += 2 }
+        else if workEntries >= 1 { score += 1 }
         // Learning (max 3)
         if studyHours >= 10 { score += 3 }
         else if studyHours >= 5 { score += 2 }
@@ -166,10 +165,9 @@ enum WeeklyReportEngine {
 
     private static func generateSummary(workouts: Int,
                                         gymSessions: Int,
-                                        bvaActions: Int,
-                                        paralaiLogs: Int,
+                                        workEntries: Int,
                                         studyHours: Double,
-                                        otherHours: Double) -> String {
+                                        workHours: Double) -> String {
         var parts: [String] = []
 
         if gymSessions >= 5 {
@@ -182,9 +180,8 @@ enum WeeklyReportEngine {
             parts.append("Only \(gymSessions) gym session\(gymSessions == 1 ? "" : "s")")
         }
 
-        if bvaActions > 0 || paralaiLogs > 0 {
-            let total = bvaActions + paralaiLogs
-            parts.append("\(total) work action\(total == 1 ? "" : "s")")
+        if workEntries > 0 {
+            parts.append("\(workEntries) work entr\(workEntries == 1 ? "y" : "ies")")
         } else {
             parts.append("zero work logged")
         }
@@ -195,8 +192,8 @@ enum WeeklyReportEngine {
             parts.append(String(format: "%.0fh studied", studyHours))
         }
 
-        if otherHours > 0 {
-            parts.append(String(format: "%.0fh other work", otherHours))
+        if workHours > 0 {
+            parts.append(String(format: "%.0fh work logged", workHours))
         }
 
         return parts.joined(separator: ". ") + "."
@@ -258,37 +255,22 @@ enum WeeklyReportEngine {
         return all.filter { $0.date >= start && $0.date < end }.reduce(0) { $0 + $1.xpEarned }
     }
 
-    private static func countDeals(from start: Date, to end: Date, in context: ModelContext) -> Int {
-        let descriptor = FetchDescriptor<Deal>()
-        let all = (try? context.fetch(descriptor)) ?? []
-        return all.filter { $0.updatedAt >= start && $0.updatedAt < end }.count
-    }
-
-    private static func countParaLAI(from start: Date, to end: Date, in context: ModelContext) -> Int {
-        let descriptor = FetchDescriptor<ParaLAIEntry>()
+    private static func countWorkEntries(from start: Date, to end: Date, in context: ModelContext) -> Int {
+        let descriptor = FetchDescriptor<WorkEntry>()
         let all = (try? context.fetch(descriptor)) ?? []
         return all.filter { $0.date >= start && $0.date < end }.count
     }
 
-    private static func sumOtherWorkHours(from start: Date, to end: Date, in context: ModelContext) -> Double {
-        let descriptor = FetchDescriptor<OtherWorkLog>()
+    private static func sumWorkEntryHours(from start: Date, to end: Date, in context: ModelContext) -> Double {
+        let descriptor = FetchDescriptor<WorkEntry>()
         let all = (try? context.fetch(descriptor)) ?? []
         return all.filter { $0.date >= start && $0.date < end }.reduce(0) { $0 + $1.hoursSpent }
     }
 
     private static func sumWorkXP(from start: Date, to end: Date, in context: ModelContext) -> Int {
-        let dealXP = countDeals(from: start, to: end, in: context) * 50 // rough
-        let paralaiXP: Int = {
-            let descriptor = FetchDescriptor<ParaLAIEntry>()
-            let all = (try? context.fetch(descriptor)) ?? []
-            return all.filter { $0.date >= start && $0.date < end }.reduce(0) { $0 + $1.xpEarned }
-        }()
-        let otherXP: Int = {
-            let descriptor = FetchDescriptor<OtherWorkLog>()
-            let all = (try? context.fetch(descriptor)) ?? []
-            return all.filter { $0.date >= start && $0.date < end }.reduce(0) { $0 + $1.xpEarned }
-        }()
-        return dealXP + paralaiXP + otherXP
+        let descriptor = FetchDescriptor<WorkEntry>()
+        let all = (try? context.fetch(descriptor)) ?? []
+        return all.filter { $0.date >= start && $0.date < end }.reduce(0) { $0 + $1.xpEarned }
     }
 
     private static func sumLearningXP(from start: Date, to end: Date, in context: ModelContext) -> Int {

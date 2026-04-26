@@ -25,9 +25,9 @@ struct DashboardView: View {
     @Query(sort: \GymSession.date, order: .reverse) private var gymSessions: [GymSession]
     @Query(sort: \FoodEntry.date, order: .reverse) private var foodEntries: [FoodEntry]
     @Query(sort: \WeightEntry.date, order: .reverse) private var weightEntries: [WeightEntry]
-    @Query private var deals: [Deal]
-    @Query private var milestones: [ParaLAIMilestone]
-    @Query private var paralaiEntries: [ParaLAIEntry]
+    @Query(sort: \Project.orderIndex) private var projects: [Project]
+    @Query(sort: \WorkEntry.date, order: .reverse) private var workEntries: [WorkEntry]
+    @Query(sort: \ProjectMilestone.orderIndex) private var projectMilestones: [ProjectMilestone]
     @Query private var courses: [Course]
     @Query private var books: [Book]
     @Query private var certifications: [Certification]
@@ -53,7 +53,7 @@ struct DashboardView: View {
     }
 
     private var workVM: WorkViewModel {
-        WorkViewModel(deals: deals, milestones: milestones, entries: paralaiEntries)
+        WorkViewModel(projects: projects, entries: workEntries, milestones: projectMilestones)
     }
 
     private var learningVM: LearningViewModel {
@@ -305,7 +305,7 @@ struct DashboardView: View {
                     Text("\(BonusEngine.founderWeekCount(in: context))")
                         .font(.system(size: 28, weight: .black, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
-                    Text("FOUNDER\nWEEKS")
+                    Text("BUILDER\nWEEKS")
                         .font(.caption2).fontWeight(.heavy).tracking(1)
                         .foregroundStyle(Theme.textSecondary)
                         .multilineTextAlignment(.center)
@@ -442,15 +442,15 @@ struct DashboardView: View {
     }
 
     private var workMetrics: [XPTrackCard.Metric] {
-        let overdueCount = workVM.overdueDeals.count
+        let completed = projectMilestones.filter { $0.isCompleted }.count
+        let total = projectMilestones.count
         return [
-            .init(label: "PIPELINE",
-                  value: String(format: "$%.1fM", workVM.pipelineValueMillion)),
-            .init(label: "DEALS",
-                  value: "\(workVM.openDeals.count) open"),
-            .init(label: "OVERDUE",
-                  value: "\(overdueCount)",
-                  tint: overdueCount > 0 ? .red : nil)
+            .init(label: "PROJECTS",
+                  value: "\(workVM.activeProjects.count)"),
+            .init(label: "THIS WEEK",
+                  value: String(format: "%.0fh", workVM.hoursThisWeek)),
+            .init(label: "MILESTONES",
+                  value: "\(completed)/\(total)")
         ]
     }
 

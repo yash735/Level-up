@@ -301,10 +301,14 @@ struct SettingsView: View {
         try? context.delete(model: WeightEntry.self)
         try? context.delete(model: HabitLog.self)
         try? context.delete(model: GymSplitState.self)
-        // Phase 2 — Work
+        // Phase 2 — Work (legacy)
         try? context.delete(model: Deal.self)
         try? context.delete(model: ParaLAIMilestone.self)
         try? context.delete(model: ParaLAIEntry.self)
+        // Unified Work — Projects
+        try? context.delete(model: Project.self)
+        try? context.delete(model: ProjectMilestone.self)
+        try? context.delete(model: WorkEntry.self)
         // Phase 2 — Learning
         try? context.delete(model: Course.self)
         try? context.delete(model: Book.self)

@@ -90,8 +90,8 @@ enum ChallengeManager {
                 newValue = Double(gymSessionsThisWeek(from: cWeekStart, to: cWeekEnd, in: context))
             case "study_hours":
                 newValue = studyHoursThisWeek(from: cWeekStart, to: cWeekEnd, in: context)
-            case "bva":
-                newValue = Double(bvaActionsThisWeek(from: cWeekStart, to: cWeekEnd, in: context))
+            case "deep_work":
+                newValue = Double(deepWorkSessionsThisWeek(from: cWeekStart, to: cWeekEnd, in: context))
             case "habits":
                 newValue = Double(habitDaysCompleteThisWeek(from: cWeekStart, to: cWeekEnd, in: context))
             case "monthly_mega":
@@ -187,7 +187,7 @@ enum ChallengeManager {
     ) -> WeeklyChallenge {
         // Rotate through challenge types based on week number
         let weekNum = Calendar.current.component(.weekOfYear, from: weekStart)
-        let types = ["work_hours", "gym_sessions", "study_hours", "bva", "habits"]
+        let types = ["work_hours", "gym_sessions", "study_hours", "deep_work", "habits"]
         let chosen = types[weekNum % types.count]
 
         switch chosen {
@@ -197,8 +197,8 @@ enum ChallengeManager {
             return gymSessionsChallenge(baseline: baseline, weekStart: weekStart)
         case "study_hours":
             return studyHoursChallenge(baseline: baseline, weekStart: weekStart)
-        case "bva":
-            return bvaChallenge(baseline: baseline, weekStart: weekStart)
+        case "deep_work":
+            return deepWorkChallenge(baseline: baseline, weekStart: weekStart)
         case "habits":
             return habitsChallenge(baseline: baseline, weekStart: weekStart)
         default:
@@ -218,7 +218,7 @@ enum ChallengeManager {
         return WeeklyChallenge(
             weekStartDate: weekStart, challengeType: "work_hours",
             title: "Log \(Int(target)) hours of work",
-            description: "Total work hours from ParaLAI, BVA, and Projects this week.",
+            description: "Total work hours across all projects this week.",
             targetValue: target, xpReward: xp, tier: tier
         )
     }
@@ -259,21 +259,21 @@ enum ChallengeManager {
         )
     }
 
-    private static func bvaChallenge(baseline: BaselineStats?, weekStart: Date) -> WeeklyChallenge {
-        let avg = baseline?.avgBVAActions ?? 0
+    private static func deepWorkChallenge(baseline: BaselineStats?, weekStart: Date) -> WeeklyChallenge {
+        let avg = baseline?.avgDeepWorkSessions ?? 0
         let (target, xp, tier): (Double, Int, Int)
         switch avg {
         case ..<2: (target, xp, tier) = (3, 400, 1)
         case 2..<4: (target, xp, tier) = (5, 700, 2)
         case 4..<6: (target, xp, tier) = (8, 1000, 3)
-        default:    (target, xp, tier) = (10, 1500, 4)
+        default:    (target, xp, tier) = (12, 1500, 4)
         }
         let desc = tier == 4
-            ? "Close or advance every active deal this week"
-            : "Log \(Int(target)) BVA actions this week"
+            ? "12 deep work sessions — total focus mode"
+            : "Log \(Int(target)) deep work sessions"
         return WeeklyChallenge(
-            weekStartDate: weekStart, challengeType: "bva",
-            title: tier == 4 ? "Advance every deal" : "Log \(Int(target)) BVA actions",
+            weekStartDate: weekStart, challengeType: "deep_work",
+            title: tier == 4 ? "12 deep work sessions — total focus mode" : "Log \(Int(target)) deep work sessions",
             description: desc, targetValue: target, xpReward: xp, tier: tier
         )
     }
@@ -302,8 +302,8 @@ enum ChallengeManager {
         let gymTarget = 5
         let studyTarget = Int(max(15, (baseline?.avgStudyHours ?? 10) * 1.3))
         let desc = "This month: \(workTarget)+ work hours, \(gymTarget) gym sessions, " +
-                   "\(studyTarget) study hours, close or advance every active BVA deal, " +
-                   "ship 1 ParaLAI milestone — all in the same week"
+                   "\(studyTarget) study hours, log 5+ deep work sessions, " +
+                   "complete 1 project milestone — all in the same week"
         return WeeklyChallenge(
             weekStartDate: weekStart, challengeType: "monthly_mega",
             title: "MONTHLY MEGA CHALLENGE",
@@ -316,17 +316,10 @@ enum ChallengeManager {
     // MARK: - Progress Queries
 
     private static func workHoursThisWeek(from start: Date, to end: Date, in context: ModelContext) -> Double {
-        let paralaiDesc = FetchDescriptor<ParaLAIEntry>()
-        let paralai = (try? context.fetch(paralaiDesc)) ?? []
-        let paralaiHours = paralai.filter { $0.date >= start && $0.date < end }
+        let desc = FetchDescriptor<WorkEntry>()
+        let all = (try? context.fetch(desc)) ?? []
+        return all.filter { $0.date >= start && $0.date < end }
             .reduce(0.0) { $0 + $1.hoursSpent }
-
-        let otherDesc = FetchDescriptor<OtherWorkLog>()
-        let other = (try? context.fetch(otherDesc)) ?? []
-        let otherHours = other.filter { $0.date >= start && $0.date < end }
-            .reduce(0.0) { $0 + $1.hoursSpent }
-
-        return paralaiHours + otherHours
     }
 
     private static func gymSessionsThisWeek(from start: Date, to end: Date, in context: ModelContext) -> Int {
@@ -342,10 +335,10 @@ enum ChallengeManager {
         return all.reduce(0.0) { $0 + $1.totalHours }
     }
 
-    private static func bvaActionsThisWeek(from start: Date, to end: Date, in context: ModelContext) -> Int {
-        let desc = FetchDescriptor<Deal>()
+    private static func deepWorkSessionsThisWeek(from start: Date, to end: Date, in context: ModelContext) -> Int {
+        let desc = FetchDescriptor<WorkEntry>()
         let all = (try? context.fetch(desc)) ?? []
-        return all.filter { $0.updatedAt >= start && $0.updatedAt < end }.count
+        return all.filter { $0.actionType == "Deep Work" && $0.date >= start && $0.date < end }.count
     }
 
     private static func habitDaysCompleteThisWeek(from start: Date, to end: Date, in context: ModelContext) -> Int {
@@ -359,10 +352,10 @@ enum ChallengeManager {
         if workHoursThisWeek(from: start, to: end, in: context) >= 30 { completed += 1 }
         if gymSessionsThisWeek(from: start, to: end, in: context) >= 5 { completed += 1 }
         if studyHoursThisWeek(from: start, to: end, in: context) >= 15 { completed += 1 }
-        if bvaActionsThisWeek(from: start, to: end, in: context) >= 3 { completed += 1 }
+        if deepWorkSessionsThisWeek(from: start, to: end, in: context) >= 5 { completed += 1 }
 
-        // ParaLAI milestone check
-        let msDesc = FetchDescriptor<ParaLAIMilestone>()
+        // Project milestone check
+        let msDesc = FetchDescriptor<ProjectMilestone>()
         let milestones = (try? context.fetch(msDesc)) ?? []
         if milestones.contains(where: {
             $0.isCompleted && ($0.completedAt ?? .distantPast) >= start

@@ -326,42 +326,39 @@ struct QuickLogWorkTab: View {
     let onLog: (Int) -> Void
 
     @Environment(\.modelContext) private var context
-    @Query(sort: \ParaLAIEntry.date, order: .reverse) private var paralaiEntries: [ParaLAIEntry]
-    @Query(sort: \OtherWorkLog.date, order: .reverse) private var otherLogs: [OtherWorkLog]
-    @Query private var deals: [Deal]
+    @Query(sort: \Project.orderIndex) private var projects: [Project]
+    @Query(sort: \WorkEntry.date, order: .reverse) private var workEntries: [WorkEntry]
 
-    enum WorkType: String, CaseIterable {
-        case paralai = "ParaLAI"
-        case bva = "BVA"
-        case projects = "Projects"
-    }
-
-    @State private var workType: WorkType = .paralai
+    @State private var selectedProjectID: UUID?
     @State private var title = ""
     @State private var hours = 1.0
-    @State private var actionType = "Feature Built"
-    @State private var category = "Other"
+    @State private var actionType = "Deep Work"
+
+    private var activeProjects: [Project] {
+        projects.filter { !$0.isArchived }
+    }
 
     private var todaysWorkXP: Int {
         let cal = Calendar.current
-        let pXP = paralaiEntries.filter { cal.isDateInToday($0.date) }.reduce(0) { $0 + $1.xpEarned }
-        let oXP = otherLogs.filter { cal.isDateInToday($0.date) }.reduce(0) { $0 + $1.xpEarned }
-        return pXP + oXP
-    }
-
-    private var activeDealsCount: Int {
-        deals.filter { !$0.isClosedWon && !$0.isClosedLost }.count
+        return workEntries
+            .filter { cal.isDateInToday($0.date) }
+            .reduce(0) { $0 + $1.xpEarned }
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // Type picker
-            Picker("", selection: $workType) {
-                ForEach(WorkType.allCases, id: \.self) { t in
-                    Text(t.rawValue).tag(t)
+            // Project picker
+            HStack {
+                Text("Project:")
+                    .font(.caption).foregroundStyle(Theme.textSecondary)
+                Picker("", selection: $selectedProjectID) {
+                    Text("Select...").tag(nil as UUID?)
+                    ForEach(activeProjects) { project in
+                        Text(project.name).tag(project.id as UUID?)
+                    }
                 }
+                .frame(maxWidth: .infinity)
             }
-            .pickerStyle(.segmented)
 
             // Title
             TextField("What did you work on?", text: $title)
@@ -373,32 +370,16 @@ struct QuickLogWorkTab: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.cardBorder, lineWidth: 1))
 
-            // Category picker (Projects only)
-            if workType == .projects {
-                HStack {
-                    Text("Category:")
-                        .font(.caption).foregroundStyle(Theme.textSecondary)
-                    Picker("", selection: $category) {
-                        ForEach(OtherWorkLog.categories, id: \.self) { c in
-                            Text(c).tag(c)
-                        }
+            // Action type
+            HStack {
+                Text("Type:")
+                    .font(.caption).foregroundStyle(Theme.textSecondary)
+                Picker("", selection: $actionType) {
+                    ForEach(WorkEntry.actionTypes, id: \.self) { t in
+                        Text(t).tag(t)
                     }
-                    .frame(maxWidth: .infinity)
                 }
-            }
-
-            // Action type (ParaLAI only)
-            if workType == .paralai {
-                HStack {
-                    Text("Type:")
-                        .font(.caption).foregroundStyle(Theme.textSecondary)
-                    Picker("", selection: $actionType) {
-                        ForEach(["Feature Built", "Bug Fixed", "Milestone Shipped", "Meeting", "Research", "Other"], id: \.self) { t in
-                            Text(t).tag(t)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                }
+                .frame(maxWidth: .infinity)
             }
 
             // Hours
@@ -429,7 +410,7 @@ struct QuickLogWorkTab: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(Theme.secondaryAccent)
-            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || selectedProjectID == nil)
 
             Divider().background(Theme.cardBorder)
 
@@ -444,63 +425,34 @@ struct QuickLogWorkTab: View {
                     .foregroundStyle(Theme.secondaryAccent)
             }
 
-            if workType == .bva {
-                HStack {
-                    Image(systemName: "building.columns.fill")
-                        .foregroundStyle(Theme.secondaryAccent)
-                    Text("\(activeDealsCount) active deals")
-                        .font(.caption).foregroundStyle(Theme.textSecondary)
-                }
+            HStack {
+                Image(systemName: "folder.fill")
+                    .foregroundStyle(Theme.secondaryAccent)
+                Text("\(activeProjects.count) active projects")
+                    .font(.caption).foregroundStyle(Theme.textSecondary)
             }
         }
     }
 
     private func logWork() {
         let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
-        guard !trimmedTitle.isEmpty else { return }
+        guard !trimmedTitle.isEmpty,
+              let projectID = selectedProjectID,
+              let project = activeProjects.first(where: { $0.id == projectID })
+        else { return }
 
-        switch workType {
-        case .paralai:
-            let xp: Int
-            switch actionType {
-            case "Feature Built":       xp = XPEngine.xpForParaLAIFeature
-            case "Bug Fixed":           xp = XPEngine.xpForParaLAIBug
-            case "Milestone Shipped":   xp = XPEngine.xpForParaLAIMilestone
-            default:                    xp = 50
-            }
-            let entry = ParaLAIEntry(actionType: actionType, title: trimmedTitle,
-                                     detail: "", hoursSpent: hours, xpEarned: xp)
-            context.insert(entry)
-            user.award(xp, to: .work)
-            ChallengeManager.updateProgress(user: user, in: context)
-            try? context.save()
-            title = ""
-            onLog(xp)
-
-        case .bva:
-            // Quick BVA log — stage update on most recent deal
-            let xp = XPEngine.xpForBVAMeeting
-            let entry = ParaLAIEntry(actionType: "Meeting", title: "BVA: \(trimmedTitle)",
-                                     detail: "", hoursSpent: hours, xpEarned: xp)
-            context.insert(entry)
-            user.award(xp, to: .work)
-            ChallengeManager.updateProgress(user: user, in: context)
-            try? context.save()
-            title = ""
-            onLog(xp)
-
-        case .projects:
-            let xp = OtherWorkLog.calculateXP(hours: hours, actionType: "Deep Work", category: category)
-            let log = OtherWorkLog(category: category, projectName: trimmedTitle,
-                                   actionType: "Deep Work", title: trimmedTitle,
-                                   hoursSpent: hours, xpEarned: xp)
-            context.insert(log)
-            user.award(xp, to: .work)
-            ChallengeManager.updateProgress(user: user, in: context)
-            try? context.save()
-            title = ""
-            onLog(xp)
-        }
+        let xp = WorkEntry.calculateXP(hours: hours, actionType: actionType)
+        let entry = WorkEntry(project: project,
+                              actionType: actionType,
+                              title: trimmedTitle,
+                              hoursSpent: hours,
+                              xpEarned: xp)
+        context.insert(entry)
+        user.award(xp, to: .work)
+        ChallengeManager.updateProgress(user: user, in: context)
+        try? context.save()
+        title = ""
+        onLog(xp)
     }
 }
 

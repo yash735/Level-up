@@ -238,15 +238,11 @@ final class MenuBarManager: NSObject, ObservableObject {
             let foods = (try? ctx.fetch(foodDesc)) ?? []
             let foodXP = foods.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
                 .reduce(0) { $0 + $1.xpEarned }
-            let paralaiDesc = FetchDescriptor<ParaLAIEntry>()
-            let paralai = (try? ctx.fetch(paralaiDesc)) ?? []
-            let paralaiXP = paralai.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
+            let workDesc = FetchDescriptor<WorkEntry>()
+            let workEntries = (try? ctx.fetch(workDesc)) ?? []
+            let workXP = workEntries.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
                 .reduce(0) { $0 + $1.xpEarned }
-            let otherDesc = FetchDescriptor<OtherWorkLog>()
-            let other = (try? ctx.fetch(otherDesc)) ?? []
-            let otherXP = other.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
-                .reduce(0) { $0 + $1.xpEarned }
-            cachedTodayXP = gymXP + foodXP + paralaiXP + otherXP
+            cachedTodayXP = gymXP + foodXP + workXP
         }
 
         // Active challenge

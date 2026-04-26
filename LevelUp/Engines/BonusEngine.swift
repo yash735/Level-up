@@ -188,21 +188,11 @@ enum BonusEngine {
             return false
         }()
 
-        // Check work track: ParaLAI, BVA deal update, or Projects log
+        // Check work track: any WorkEntry logged yesterday
         let hasWork: Bool = {
-            let paralaiDesc = FetchDescriptor<ParaLAIEntry>()
-            let paralai = (try? context.fetch(paralaiDesc)) ?? []
-            if paralai.contains(where: { cal.isDate($0.date, inSameDayAs: yesterday) }) { return true }
-
-            let dealDesc = FetchDescriptor<Deal>()
-            let deals = (try? context.fetch(dealDesc)) ?? []
-            if deals.contains(where: { cal.isDate($0.updatedAt, inSameDayAs: yesterday) }) { return true }
-
-            let otherDesc = FetchDescriptor<OtherWorkLog>()
-            let others = (try? context.fetch(otherDesc)) ?? []
-            if others.contains(where: { cal.isDate($0.date, inSameDayAs: yesterday) }) { return true }
-
-            return false
+            let workDesc = FetchDescriptor<WorkEntry>()
+            let entries = (try? context.fetch(workDesc)) ?? []
+            return entries.contains(where: { cal.isDate($0.date, inSameDayAs: yesterday) })
         }()
 
         // Check learning track: course, book, or certification log
@@ -272,11 +262,11 @@ enum BonusEngine {
         try? context.save()
     }
 
-    // MARK: - Founder Week Check
+    // MARK: - Builder Week Check
 
-    /// Check if this week had both a BVA deal closed and a ParaLAI milestone shipped.
+    /// Check if this week had milestones completed across 2+ different projects.
     @MainActor
-    static func checkFounderWeek(user: User, in context: ModelContext) {
+    static func checkBuilderWeek(user: User, in context: ModelContext) {
         let cal = Calendar.current
         let weekStart = WeeklyReportEngine.lastISOWeekStart()
         let weekEnd = cal.date(byAdding: .day, value: 7, to: weekStart)!
@@ -288,22 +278,15 @@ enum BonusEngine {
             return
         }
 
-        // Check BVA deal closed this week
-        let dealDesc = FetchDescriptor<Deal>()
-        let deals = (try? context.fetch(dealDesc)) ?? []
-        let closedDeal = deals.contains {
-            $0.isClosedWon && $0.updatedAt >= weekStart && $0.updatedAt < weekEnd
-        }
-
-        // Check ParaLAI milestone shipped this week
-        let msDesc = FetchDescriptor<ParaLAIMilestone>()
+        // Check milestones completed across 2+ distinct projects this week
+        let msDesc = FetchDescriptor<ProjectMilestone>()
         let milestones = (try? context.fetch(msDesc)) ?? []
-        let shippedMilestone = milestones.contains {
+        let completedThisWeek = milestones.filter {
             $0.isCompleted && ($0.completedAt ?? .distantPast) >= weekStart
                 && ($0.completedAt ?? .distantPast) < weekEnd
         }
-
-        guard closedDeal && shippedMilestone else { return }
+        let distinctProjects = Set(completedThisWeek.compactMap { $0.project?.id })
+        guard distinctProjects.count >= 2 else { return }
 
         // Award
         user.award(1000, to: .work)
@@ -314,8 +297,8 @@ enum BonusEngine {
         earnAchievement(key: "founder_week", in: context)
 
         GameEventCenter.shared.fireBanner(
-            title: "FOUNDER WEEK ACHIEVED",
-            subtitle: "BVA Deal Closed + ParaLAI Milestone Shipped — +1000 XP",
+            title: "BUILDER WEEK ACHIEVED",
+            subtitle: "Milestones hit across 2+ projects — +1000 XP",
             color: .gold
         )
 
@@ -334,7 +317,7 @@ enum BonusEngine {
         let catalog: [(key: String, title: String, desc: String, track: String, icon: String)] = [
             ("first_s_rank", "First S Rank", "Earn your first S rank weekly grade", "combined", "star.fill"),
             ("unstoppable", "Unstoppable", "3 consecutive S rank weeks", "combined", "flame.fill"),
-            ("founder_week", "Founder Week", "Close a BVA deal and ship a ParaLAI milestone in the same week", "work", "crown.fill"),
+            ("founder_week", "Founder Week", "Complete milestones across 2+ projects in one week", "work", "crown.fill"),
             ("renaissance_man", "Renaissance Man", "30 day balanced streak across all tracks", "combined", "figure.mind.and.body"),
             ("on_a_roll", "On A Roll", "Complete 4 consecutive weekly challenges", "combined", "bolt.fill"),
             ("legendary_season", "Legendary", "Achieve Legendary season rank", "combined", "trophy.fill"),
@@ -342,8 +325,8 @@ enum BonusEngine {
             ("tier4_unlocked", "Tier 4 Unlocked", "Complete your first Legendary tier challenge", "combined", "shield.fill"),
             ("monthly_warrior", "Monthly Warrior", "Complete your first monthly mega challenge", "combined", "sparkles"),
             ("unstoppable_challenger", "Unstoppable Challenger", "Complete 12 challenges in a row", "combined", "bolt.shield.fill"),
-            ("first_deal_closed", "First Deal Closed", "Close your first BVA deal", "work", "building.columns.fill"),
-            ("paralai_shipped", "ParaLAI Shipped", "Complete your first ParaLAI milestone", "work", "shippingbox.fill"),
+            ("first_milestone_completed", "First Milestone", "Complete your first project milestone", "work", "checkmark.seal.fill"),
+            ("multi_project_builder", "Multi-Project Builder", "Have 3+ active projects with milestones", "work", "shippingbox.fill"),
             ("100_workouts", "100 Workouts", "Log 100 total gym sessions", "fitness", "figure.run"),
             ("1000_hours", "1000 Hours", "Log 1000 total study hours", "learning", "clock.fill"),
             ("balanced_week", "Balanced Week", "Log all 3 tracks every day for 7 days", "combined", "scale.3d"),

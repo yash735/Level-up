@@ -27,9 +27,7 @@ enum InsightEngine {
         cardioSessions: [CardioSession],
         foodEntries: [FoodEntry],
         habitLogs: [HabitLog],
-        deals: [Deal],
-        paralaiEntries: [ParaLAIEntry],
-        otherWorkLogs: [OtherWorkLog],
+        workEntries: [WorkEntry],
         courses: [Course],
         books: [Book],
         user: User
@@ -69,7 +67,6 @@ enum InsightEngine {
 
         // 3. Gym consistency this month
         let monthStart = cal.date(from: cal.dateComponents([.year, .month], from: now))!
-        let daysInMonth = cal.range(of: .day, in: .month, for: now)?.count ?? 30
         let daysSoFar = cal.component(.day, from: now)
         let expectedSessions = Int(Double(daysSoFar) / 7.0 * 5.0)
         let actualThisMonth = allWorkouts.filter { $0.date >= monthStart }.count
@@ -82,16 +79,12 @@ enum InsightEngine {
             ))
         }
 
-        // 4. Best study day
-        if !paralaiEntries.isEmpty || !otherWorkLogs.isEmpty {
+        // 4. Best work day
+        if !workEntries.isEmpty {
             var dayXP: [Int: Int] = [:]
-            for e in paralaiEntries {
+            for e in workEntries {
                 let wd = cal.component(.weekday, from: e.date)
                 dayXP[wd, default: 0] += e.xpEarned
-            }
-            for o in otherWorkLogs {
-                let wd = cal.component(.weekday, from: o.date)
-                dayXP[wd, default: 0] += o.xpEarned
             }
             if let best = dayXP.max(by: { $0.value < $1.value }) {
                 let dayName = cal.weekdaySymbols[best.key - 1]
@@ -103,10 +96,9 @@ enum InsightEngine {
             }
         }
 
-        // 5. Workout-study correlation
-        if !allWorkouts.isEmpty {
+        // 5. Workout-work correlation
+        if !allWorkouts.isEmpty && !workEntries.isEmpty {
             var workoutDays = Set<String>()
-            var noWorkoutDays = Set<String>()
             let fmt = DateFormatter()
             fmt.dateFormat = "yyyy-MM-dd"
 
@@ -120,13 +112,7 @@ enum InsightEngine {
             var wdCount = 0
             var odCount = 0
 
-            for entry in paralaiEntries + otherWorkLogs.map({
-                // Quick adapter — just need date and xpEarned
-                let e = ParaLAIEntry(date: $0.date, actionType: "other",
-                                     title: "", detail: "",
-                                     hoursSpent: 0, xpEarned: $0.xpEarned)
-                return e
-            }) {
+            for entry in workEntries {
                 let key = fmt.string(from: entry.date)
                 if workoutDays.contains(key) {
                     xpOnWorkoutDays += entry.xpEarned

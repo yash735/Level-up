@@ -42,18 +42,18 @@ struct StatsRepository {
 
     // MARK: - Work
 
-    func allDeals() -> [Deal] {
-        let d = FetchDescriptor<Deal>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
+    func allProjects() -> [Project] {
+        let d = FetchDescriptor<Project>(sortBy: [SortDescriptor(\.orderIndex)])
         return (try? context.fetch(d)) ?? []
     }
 
-    func allParaLAIEntries() -> [ParaLAIEntry] {
-        let d = FetchDescriptor<ParaLAIEntry>(sortBy: [SortDescriptor(\.date)])
+    func allWorkEntries() -> [WorkEntry] {
+        let d = FetchDescriptor<WorkEntry>(sortBy: [SortDescriptor(\.date)])
         return (try? context.fetch(d)) ?? []
     }
 
-    func allMilestones() -> [ParaLAIMilestone] {
-        let d = FetchDescriptor<ParaLAIMilestone>(sortBy: [SortDescriptor(\.orderIndex)])
+    func allProjectMilestones() -> [ProjectMilestone] {
+        let d = FetchDescriptor<ProjectMilestone>(sortBy: [SortDescriptor(\.orderIndex)])
         return (try? context.fetch(d)) ?? []
     }
 
@@ -132,7 +132,7 @@ struct StatsRepository {
         allOtherWorkLogs().filter { $0.date >= start && $0.date < end }
     }
 
-    func paralaiEntries(from start: Date, to end: Date) -> [ParaLAIEntry] {
-        allParaLAIEntries().filter { $0.date >= start && $0.date < end }
+    func workEntries(from start: Date, to end: Date) -> [WorkEntry] {
+        allWorkEntries().filter { $0.date >= start && $0.date < end }
     }
 }

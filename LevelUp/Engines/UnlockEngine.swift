@@ -54,11 +54,11 @@ enum UnlockEngine {
                    levelRequired: 50, iconName: "trophy.fill"),
 
             // ────────── Work ──────────
-            Unlock(track: "work", title: "First BVA Deal Closed",
-                   detail: "Level 3 Work badge",
+            Unlock(track: "work", title: "First Project Milestone",
+                   detail: "Complete a milestone — Level 3 Work",
                    levelRequired: 3,  iconName: "checkmark.seal.fill"),
-            Unlock(track: "work", title: "ParaLAI v1 Shipped",
-                   detail: "Level 5 Work badge",
+            Unlock(track: "work", title: "5 Milestones Completed",
+                   detail: "Prove your consistency — Level 5 Work",
                    levelRequired: 5,  iconName: "shippingbox.fill"),
             Unlock(track: "work", title: "$1M Deal Advised",
                    detail: "Level 8 Work milestone",

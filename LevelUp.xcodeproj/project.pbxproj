@@ -45,8 +45,6 @@
 		FAB10000FAB10000BBB00025 /* WeightTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00025 /* WeightTabView.swift */; };
 		FAB10000FAB10000BBB00026 /* HabitsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00026 /* HabitsTabView.swift */; };
 		FAB10000FAB10000BBB00027 /* WorkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00027 /* WorkView.swift */; };
-		FAB10000FAB10000BBB00028 /* ParaLAITabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00028 /* ParaLAITabView.swift */; };
-		FAB10000FAB10000BBB00029 /* BVATabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00029 /* BVATabView.swift */; };
 		FAB10000FAB10000BBB0002A /* LearningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002A /* LearningView.swift */; };
 		FAB10000FAB10000BBB0002B /* CoursesTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002B /* CoursesTabView.swift */; };
 		FAB10000FAB10000BBB0002C /* BooksTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0002C /* BooksTabView.swift */; };
@@ -66,7 +64,6 @@
 		FAB10000FAB10000BBB0003A /* PerfectWeekOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */; };
 		FAB10000FAB10000BBB0003B /* OtherWorkLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003B /* OtherWorkLog.swift */; };
 		FAB10000FAB10000BBB0003C /* WeeklyReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003C /* WeeklyReport.swift */; };
-		FAB10000FAB10000BBB0003D /* OtherWorkTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003D /* OtherWorkTabView.swift */; };
 		FAB10000FAB10000BBB0003E /* WeeklyReportEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003E /* WeeklyReportEngine.swift */; };
 		FAB10000FAB10000BBB0003F /* WeeklyReportOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0003F /* WeeklyReportOverlay.swift */; };
 		FAB10000FAB10000BBB00040 /* WeeklyReportRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00040 /* WeeklyReportRoot.swift */; };
@@ -82,6 +79,9 @@
 		FAB10000FAB10000BBB0004A /* QuickLogPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004A /* QuickLogPopover.swift */; };
 		FAB10000FAB10000BBB0004B /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004B /* NotificationManager.swift */; };
 		FAB10000FAB10000BBB0004C /* LoginItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004C /* LoginItemManager.swift */; };
+		FAB10000FAB10000BBB0004D /* ProjectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004D /* ProjectModels.swift */; };
+		FAB10000FAB10000BBB0004E /* ProjectTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004E /* ProjectTabView.swift */; };
+		FAB10000FAB10000BBB0004F /* AddProjectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004F /* AddProjectSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -125,8 +125,6 @@
 		FAB10000FAB10000FFF00025 /* WeightTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightTabView.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF00026 /* HabitsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsTabView.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF00027 /* WorkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkView.swift; sourceTree = "<group>"; };
-		FAB10000FAB10000FFF00028 /* ParaLAITabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParaLAITabView.swift; sourceTree = "<group>"; };
-		FAB10000FAB10000FFF00029 /* BVATabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BVATabView.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0002A /* LearningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningView.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0002B /* CoursesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoursesTabView.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0002C /* BooksTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooksTabView.swift; sourceTree = "<group>"; };
@@ -146,7 +144,6 @@
 		FAB10000FAB10000FFF0003A /* PerfectWeekOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfectWeekOverlay.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0003B /* OtherWorkLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherWorkLog.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0003C /* WeeklyReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReport.swift; sourceTree = "<group>"; };
-		FAB10000FAB10000FFF0003D /* OtherWorkTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherWorkTabView.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0003E /* WeeklyReportEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportEngine.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0003F /* WeeklyReportOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportOverlay.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF00040 /* WeeklyReportRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportRoot.swift; sourceTree = "<group>"; };
@@ -162,6 +159,9 @@
 		FAB10000FAB10000FFF0004A /* QuickLogPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLogPopover.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0004B /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0004C /* LoginItemManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemManager.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0004D /* ProjectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModels.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0004E /* ProjectTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF0004F /* AddProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProjectSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,6 +231,7 @@
 				FAB10000FAB10000FFF0003B /* OtherWorkLog.swift */,
 				FAB10000FAB10000FFF0003C /* WeeklyReport.swift */,
 				FAB10000FAB10000FFF00044 /* Phase45Models.swift */,
+				FAB10000FAB10000FFF0004D /* ProjectModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -334,9 +335,8 @@
 			isa = PBXGroup;
 			children = (
 				FAB10000FAB10000FFF00027 /* WorkView.swift */,
-				FAB10000FAB10000FFF00028 /* ParaLAITabView.swift */,
-				FAB10000FAB10000FFF00029 /* BVATabView.swift */,
-				FAB10000FAB10000FFF0003D /* OtherWorkTabView.swift */,
+				FAB10000FAB10000FFF0004E /* ProjectTabView.swift */,
+				FAB10000FAB10000FFF0004F /* AddProjectSheet.swift */,
 			);
 			path = Work;
 			sourceTree = "<group>";
@@ -508,8 +508,6 @@
 				FAB10000FAB10000BBB00025 /* WeightTabView.swift in Sources */,
 				FAB10000FAB10000BBB00026 /* HabitsTabView.swift in Sources */,
 				FAB10000FAB10000BBB00027 /* WorkView.swift in Sources */,
-				FAB10000FAB10000BBB00028 /* ParaLAITabView.swift in Sources */,
-				FAB10000FAB10000BBB00029 /* BVATabView.swift in Sources */,
 				FAB10000FAB10000BBB0002A /* LearningView.swift in Sources */,
 				FAB10000FAB10000BBB0002B /* CoursesTabView.swift in Sources */,
 				FAB10000FAB10000BBB0002C /* BooksTabView.swift in Sources */,
@@ -529,7 +527,6 @@
 				FAB10000FAB10000BBB0003A /* PerfectWeekOverlay.swift in Sources */,
 				FAB10000FAB10000BBB0003B /* OtherWorkLog.swift in Sources */,
 				FAB10000FAB10000BBB0003C /* WeeklyReport.swift in Sources */,
-				FAB10000FAB10000BBB0003D /* OtherWorkTabView.swift in Sources */,
 				FAB10000FAB10000BBB0003E /* WeeklyReportEngine.swift in Sources */,
 				FAB10000FAB10000BBB0003F /* WeeklyReportOverlay.swift in Sources */,
 				FAB10000FAB10000BBB00040 /* WeeklyReportRoot.swift in Sources */,
@@ -545,6 +542,9 @@
 				FAB10000FAB10000BBB0004A /* QuickLogPopover.swift in Sources */,
 				FAB10000FAB10000BBB0004B /* NotificationManager.swift in Sources */,
 				FAB10000FAB10000BBB0004C /* LoginItemManager.swift in Sources */,
+				FAB10000FAB10000BBB0004D /* ProjectModels.swift in Sources */,
+				FAB10000FAB10000BBB0004E /* ProjectTabView.swift in Sources */,
+				FAB10000FAB10000BBB0004F /* AddProjectSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

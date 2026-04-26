@@ -138,6 +138,81 @@ enum AIClient {
         }
     }
 
+    // MARK: - Milestone Generation
+
+    static func generateMilestones(projectName: String, description: String) async throws -> [String] {
+        guard let key = APIConfig.anthropicAPIKey else { throw AIError.missingKey }
+
+        let userPrompt = """
+        You are a project planning assistant. Given a project name and description, \
+        suggest 5-8 concrete, actionable milestones that would mark meaningful progress. \
+        Return ONLY a JSON array of strings, no other text. Example: ["Milestone 1", "Milestone 2"]
+
+        Project: \(projectName)
+        Description: \(description.isEmpty ? "No description provided" : description)
+        """
+
+        let body: [String: Any] = [
+            "model": model,
+            "max_tokens": 600,
+            "messages": [
+                ["role": "user", "content": userPrompt]
+            ]
+        ]
+
+        var req = URLRequest(url: endpoint)
+        req.httpMethod = "POST"
+        req.setValue(key, forHTTPHeaderField: "x-api-key")
+        req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        req.setValue("application/json", forHTTPHeaderField: "content-type")
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: req)
+
+        if let http = response as? HTTPURLResponse, http.statusCode >= 400 {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<binary>"
+            throw AIError.badStatus(http.statusCode, bodyText)
+        }
+
+        guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let contentArr = obj["content"] as? [[String: Any]],
+              let text = contentArr.first(where: { ($0["type"] as? String) == "text" })?["text"] as? String,
+              !text.isEmpty
+        else {
+            throw AIError.emptyResponse
+        }
+
+        return try parseMilestoneJSON(text)
+    }
+
+    private static func parseMilestoneJSON(_ text: String) throws -> [String] {
+        var cleaned = text
+        if let fenceRange = cleaned.range(of: "```") {
+            cleaned = String(cleaned[fenceRange.upperBound...])
+            if cleaned.hasPrefix("json") {
+                cleaned = String(cleaned.dropFirst(4))
+            }
+            if let end = cleaned.range(of: "```") {
+                cleaned = String(cleaned[..<end.lowerBound])
+            }
+        }
+
+        guard let open = cleaned.firstIndex(of: "["),
+              let close = cleaned.lastIndex(of: "]"),
+              open < close
+        else {
+            throw AIError.parse("no JSON array found in: \(text)")
+        }
+
+        let jsonSlice = String(cleaned[open...close])
+        guard let jsonData = jsonSlice.data(using: .utf8) else {
+            throw AIError.parse("slice not utf8: \(jsonSlice)")
+        }
+
+        let decoded = try JSONDecoder().decode([String].self, from: jsonData)
+        return decoded.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+    }
+
     private static func intFromAny(_ value: Any?) -> Int {
         if let i = value as? Int { return i }
         if let d = value as? Double { return Int(d.rounded()) }

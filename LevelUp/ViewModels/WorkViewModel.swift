@@ -1,77 +1,77 @@
 //
 //  WorkViewModel.swift
-//  LEVEL UP — Phase 2
+//  LEVEL UP
 //
-//  Struct view-model rebuilt per render. Aggregates deal pipeline,
-//  ParaLAI milestones, and recent ParaLAI entries.
+//  Struct view-model rebuilt per render. Aggregates project-based
+//  work entries and milestones across all projects.
 //
 
 import Foundation
 
 struct WorkViewModel {
 
-    let deals: [Deal]
-    let milestones: [ParaLAIMilestone]
-    let entries: [ParaLAIEntry]
+    let projects: [Project]
+    let entries: [WorkEntry]
+    let milestones: [ProjectMilestone]
 
-    // MARK: - BVA
+    // MARK: - Projects
 
-    /// All deals sorted by updatedAt descending.
-    var dealsByRecent: [Deal] {
-        deals.sorted { $0.updatedAt > $1.updatedAt }
+    /// Active (non-archived) projects sorted by orderIndex.
+    var activeProjects: [Project] {
+        projects
+            .filter { !$0.isArchived }
+            .sorted { $0.orderIndex < $1.orderIndex }
     }
 
-    /// Open (non-closed) deals, shown at the top of the pipeline.
-    var openDeals: [Deal] {
-        dealsByRecent.filter { !$0.isClosed }
+    // MARK: - Entries
+
+    /// All entries for a given project, sorted by date descending.
+    func entries(for project: Project) -> [WorkEntry] {
+        entries
+            .filter { $0.project?.id == project.id }
+            .sorted { $0.date > $1.date }
     }
 
-    var closedDeals: [Deal] {
-        dealsByRecent.filter { $0.isClosed }
+    /// Most recent entries for a project, capped at `limit`.
+    func recentEntries(for project: Project, limit: Int = 6) -> [WorkEntry] {
+        Array(entries(for: project).prefix(limit))
     }
 
-    /// Total value of active pipeline in $ millions.
-    var pipelineValueMillion: Double {
-        openDeals.reduce(0) { $0 + $1.dealSizeMillion }
+    // MARK: - Milestones
+
+    /// Milestones for a given project, sorted by orderIndex.
+    func milestones(for project: Project) -> [ProjectMilestone] {
+        milestones
+            .filter { $0.project?.id == project.id }
+            .sorted { $0.orderIndex < $1.orderIndex }
     }
 
-    /// Total value of closed-won deals.
-    var wonValueMillion: Double {
-        deals.filter { $0.isClosedWon }.reduce(0) { $0 + $1.dealSizeMillion }
+    // MARK: - Hours
+
+    /// Total hours logged against a single project.
+    func totalHours(for project: Project) -> Double {
+        entries
+            .filter { $0.project?.id == project.id }
+            .reduce(0) { $0 + $1.hoursSpent }
     }
 
-    /// Deals whose nextActionDue has passed.
-    var overdueDeals: [Deal] { openDeals.filter { $0.isOverdue } }
-
-    /// Number of deals in each canonical stage.
-    func count(inStage stage: String) -> Int {
-        deals.filter { $0.stage == stage && !$0.isClosed }.count
+    /// Total hours across all entries in the last 7 days.
+    var hoursThisWeek: Double {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .distantPast
+        return entries
+            .filter { $0.date >= cutoff }
+            .reduce(0) { $0 + $1.hoursSpent }
     }
 
-    // MARK: - ParaLAI
-
-    /// Milestones ordered by display index.
-    var orderedMilestones: [ParaLAIMilestone] {
-        milestones.sorted { $0.orderIndex < $1.orderIndex }
+    /// Number of entries logged in the last 7 days.
+    var entriesThisWeek: Int {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .distantPast
+        return entries.filter { $0.date >= cutoff }.count
     }
 
-    var completedMilestoneCount: Int {
-        milestones.filter { $0.isCompleted }.count
-    }
-
-    var totalMilestoneCount: Int { max(milestones.count, 1) }
-
-    var milestoneProgress: Double {
-        Double(completedMilestoneCount) / Double(totalMilestoneCount)
-    }
-
-    /// 6 most recent ParaLAI entries.
-    var recentEntries: [ParaLAIEntry] {
-        entries.sorted { $0.date > $1.date }.prefix(6).map { $0 }
-    }
-
-    /// Total hours logged against ParaLAI.
-    var totalParaLAIHours: Double {
-        entries.reduce(0) { $0 + $1.hoursSpent }
+    /// Deep Work sessions in the last 7 days.
+    var deepWorkSessionsThisWeek: Int {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .distantPast
+        return entries.filter { $0.date >= cutoff && $0.actionType == "Deep Work" }.count
     }
 }

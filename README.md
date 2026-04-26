@@ -2,7 +2,7 @@
 
 A native macOS app for gamifying real life. Solo-Leveling inspired. Built for one user — Yashodev — who tracks XP across **Fitness**, **Work**, and **Learning** and watches his character sheet fill in.
 
-Phases 1 through 5 are complete and shipping.
+Phases 1 through 6 are complete and shipping.
 
 ---
 
@@ -13,7 +13,7 @@ Phases 1 through 5 are complete and shipping.
 - **macOS 14+** target
 - **MVVM**, no third-party dependencies
 - **SF Pro** + **SF Symbols**
-- **Anthropic Claude API** for AI-powered food macro analysis
+- **Anthropic Claude API** for AI-powered food macro analysis and project milestone generation
 
 ## Quick Start
 
@@ -25,7 +25,7 @@ Phases 1 through 5 are complete and shipping.
 
 **Shell alias (optional):** After building once, type `levelup` in any terminal to launch the app.
 
-**AI food logging:** Place your Anthropic API key at `~/Library/Application Support/LevelUp/anthropic_key.txt` or set `ANTHROPIC_API_KEY` in the Xcode scheme environment variables.
+**AI features:** Place your Anthropic API key at `~/Library/Application Support/LevelUp/anthropic_key.txt` or set `ANTHROPIC_API_KEY` in the Xcode scheme environment variables. Used for food macro analysis and AI-generated project milestones.
 
 > **Bundle ID:** `com.yashodev.LevelUp`
 
@@ -35,20 +35,21 @@ Phases 1 through 5 are complete and shipping.
 LevelUp/
 ├── LevelUpApp.swift              # @main — ModelContainer, menu bar, notifications, launch-at-login
 ├── Theme/
-│   ├── Theme.swift               # Colours, radii, gradients (dark, electric, RPG)
+│   ├── Theme.swift               # Colours, radii, gradients, Color hex init (dark, electric, RPG)
 │   ├── Card.swift                # Reusable Card / SectionHeader / ProgressBar
 │   └── AnimationConstants.swift  # Timing + spring presets
 ├── Models/
 │   ├── User.swift                # Single user record. Levels derived from XP.
 │   ├── FitnessModels.swift       # GymSession, Exercise, CardioSession, FoodEntry, WeightEntry, HabitLog, GymSplitState
-│   ├── WorkModels.swift          # Deal, ParaLAIEntry, ParaLAIMilestone
+│   ├── ProjectModels.swift       # Project, ProjectMilestone, WorkEntry — unified work tracking
 │   ├── LearningModels.swift      # Course, Book, Certification
-│   ├── OtherWorkLog.swift        # Category-based project work logging
 │   ├── Phase45Models.swift       # RankStreakState, BalancedDayLog, FounderWeekLog, WeeklyChallenge, BaselineStats, SeasonCarryover, Achievement
 │   ├── WeeklyReport.swift        # Graded weekly report (S/A/B/C/D)
 │   ├── Unlock.swift              # Rewards / badges / titles catalog
 │   ├── FitnessLog.swift, WorkLog.swift, LearningLog.swift  # Per-session logs
-│   └── Phase3Models.swift        # LoginStreak, PersonalRecord
+│   ├── Phase3Models.swift        # LoginStreak, PersonalRecord
+│   ├── WorkModels.swift          # (Legacy schema shells — Deal, ParaLAIMilestone, ParaLAIEntry)
+│   └── OtherWorkLog.swift        # (Legacy schema shell)
 ├── Engines/
 │   ├── XPEngine.swift            # Level curve + all XP rules
 │   ├── XPEngine+Phase2.swift     # Phase 2 XP extensions
@@ -58,8 +59,8 @@ LevelUp/
 │   ├── GameEventCenter.swift     # @Observable event bus — XP gains, level-ups, banners
 │   ├── GymSplitEngine.swift      # Upper/Lower/Push/Pull/Legs cycle + gym bonuses
 │   ├── LoginStreakEngine.swift    # Daily login bonus (10 + streak×5, capped 150)
-│   ├── PersonalRecordsEngine.swift # Detects new personal bests
-│   ├── BonusEngine.swift         # XP multipliers, balanced days, founder weeks, achievements
+│   ├── PersonalRecordsEngine.swift # Detects new personal bests (lifts, work sessions, study)
+│   ├── BonusEngine.swift         # XP multipliers, balanced days, builder weeks, achievements
 │   ├── ChallengeManager.swift    # Weekly/monthly challenges with dynamic difficulty
 │   ├── BaselineCalculator.swift  # Trailing 4-week averages for challenge scaling
 │   ├── SeasonManager.swift       # Season carryover rewards
@@ -69,12 +70,12 @@ LevelUp/
 │   ├── MenuBarManager.swift      # NSStatusItem — left-click popover, right-click menu
 │   ├── NotificationManager.swift # UNUserNotificationCenter — reminders, alerts
 │   ├── LoginItemManager.swift    # SMAppService launch-at-login
-│   ├── AIClient.swift            # Anthropic Claude API — meal macro analysis
+│   ├── AIClient.swift            # Anthropic Claude API — meal analysis + milestone generation
 │   └── APIConfig.swift           # API key resolution (env var / file)
 ├── ViewModels/
 │   ├── DashboardViewModel.swift  # Unlocks, today summary
 │   ├── FitnessViewModel.swift    # Gym, food, weight, habit aggregation
-│   ├── WorkViewModel.swift       # BVA pipeline, ParaLAI, projects
+│   ├── WorkViewModel.swift       # Project entries, milestones, weekly hours
 │   └── LearningViewModel.swift   # Courses, books, certifications
 └── Views/
     ├── RootView.swift            # Welcome vs. main router
@@ -91,10 +92,9 @@ LevelUp/
     │   ├── WeightTabView.swift   # Weight trend tracking
     │   └── HabitsTabView.swift   # 6 daily habits
     ├── Work/
-    │   ├── WorkView.swift        # 3 tabs: BVA, ParaLAI, Projects
-    │   ├── BVATabView.swift      # Deal pipeline (7 stages → Closed Won/Lost)
-    │   ├── ParaLAITabView.swift  # Feature/bug/milestone logging
-    │   └── OtherWorkTabView.swift # Category-based project work
+    │   ├── WorkView.swift        # Dynamic project tabs + add project
+    │   ├── ProjectTabView.swift  # Stats, milestones, log form, recent entries per project
+    │   └── AddProjectSheet.swift # Create project — name, description, icon, color, AI milestones
     ├── Learning/
     │   ├── LearningView.swift    # 3 tabs + weekly study goal progress
     │   ├── CoursesTabView.swift  # Course progress + study time
@@ -123,19 +123,22 @@ LevelUp/
 XP engine with 50-level curve, SwiftData models, unlock catalog, dashboard with total level badge, track cards, unlock progression, onboarding.
 
 ### Phase 2 — Full Logging
-Fitness: gym split system (Upper/Lower/Push/Pull/Legs), exercise tracking, AI food macro analysis via Claude API, weight trending, 6 daily habits. Work: BVA deal pipeline (Prospecting → Closed Won), ParaLAI feature/bug/milestone logging, category-based project work. Learning: course progress, book tracking, certification study hours.
+Fitness: gym split system (Upper/Lower/Push/Pull/Legs), exercise tracking, AI food macro analysis via Claude API, weight trending, 6 daily habits. Work: BVA deal pipeline, ParaLAI feature/bug/milestone logging, category-based project work. Learning: course progress, book tracking, certification study hours.
 
 ### Phase 3 — Gamification
-Daily login streak with scaling bonus, personal records detection (heaviest lift, biggest deal, longest study session), XP gain animations, level-up celebrations, unlock toasts, confetti.
+Daily login streak with scaling bonus, personal records detection (heaviest lift, longest work session, longest study session), XP gain animations, level-up celebrations, unlock toasts, confetti.
 
 ### Phase 4 — Stats & Analytics
-Weekly report engine with S/A/B/C/D grading, stats dashboard, insight engine with data-driven correlations, OtherWorkLog with per-category XP rates (Acquisitions Research: 80/hr, Admin: 40/hr, etc.).
+Weekly report engine with S/A/B/C/D grading, stats dashboard, insight engine with data-driven correlations, per-category XP rates for project work.
 
 ### Phase 4.5 — Bonuses & Challenges
-XP multipliers (2× for S-rank streaks), balanced day bonus (+50 XP/track when all 3 logged), founder week (+1000 XP for closing a deal + shipping a milestone in one week), weekly/monthly challenges with dynamic difficulty, achievement catalog (15 achievements), season carryover system.
+XP multipliers (2× for S-rank streaks), balanced day bonus (+50 XP/track when all 3 logged), builder week (+1000 XP for completing milestones across 2+ projects in one week), weekly/monthly challenges with dynamic difficulty, achievement catalog, season carryover system.
 
 ### Phase 5 — Mac Polish
 Persistent menu bar icon with quick-log popover (left-click) and context menu (right-click), native macOS notifications (morning/evening/gym/study reminders, streak/challenge/level-up alerts), launch-at-login via SMAppService, app stays alive in menu bar when window closes, Settings expanded with notification scheduling, menu bar toggles, launch preferences.
+
+### Phase 6 — Unified Work Tracker
+Replaced hardcoded BVA/ParaLAI work tabs with a unified project-based system. Create any project (BVA, ParaLAI, or anything new) — each becomes its own tab. AI-generated milestones per project via Claude API. Action-type-based XP rates (Deep Work 1.5× multiplier). Weekly "deep work" challenge replaces old BVA challenge. Builder Week replaces Founder Week. Menu bar quick-log updated with project picker.
 
 ## XP Rules
 
@@ -154,14 +157,15 @@ Persistent menu bar icon with quick-log popover (left-click) and context menu (r
 **Work**
 | Action | XP |
 |---|---|
-| ParaLAI feature built | 100 |
-| ParaLAI bug fixed | 40 |
-| ParaLAI milestone shipped | 300 |
-| BVA deal added | 50 |
-| BVA deal stage update | 75 |
-| BVA deal closed | 500 |
-| BVA meeting | 60 |
-| Project work | 40–80/hr by category |
+| Deep Work | 80/hr × 1.5 multiplier |
+| Research | 70/hr |
+| Meeting | 60/hr |
+| Call | 50/hr |
+| Content | 50/hr |
+| Admin | 40/hr |
+| Other | 60/hr |
+| 3+ hour session bonus | +50 |
+| Project milestone completed | 300 |
 
 **Learning**
 | Action | XP |
@@ -177,7 +181,7 @@ Persistent menu bar icon with quick-log popover (left-click) and context menu (r
 |---|---|
 | Balanced day (all 3 tracks) | +50 per track |
 | 7-day balanced streak | +500 |
-| Founder week | +1000 |
+| Builder week (milestones across 2+ projects) | +1000 |
 | S-rank streak (2+ weeks) | 2× multiplier |
 | A-rank streak (2+ weeks) | +200 |
 | Game Plan complete | +100 |
@@ -192,7 +196,3 @@ Persistent menu bar icon with quick-log popover (left-click) and context menu (r
 | 36 – 50 | Previous **+ 40,000** per level |
 
 Total Level is derived from the sum of all three tracks using the same curve.
-
-## Phase 6 (Planned)
-
-**ARYA — AI Chief of Staff.** Conversational AI interface powered by Claude API. Natural language logging ("just finished Push day"), weekly AI reviews, proactive insights, daily game plan, honest performance feedback. Full plan saved in the repo — implementation shelved for now.

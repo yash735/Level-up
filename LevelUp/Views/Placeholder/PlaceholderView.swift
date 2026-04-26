@@ -39,7 +39,7 @@ enum TrackType {
     var tagline: String {
         switch self {
         case .fitness:  return "Workouts, nutrition, habits, streaks."
-        case .work:     return "ParaLAI + BVA deal flow. Ship and close."
+        case .work:     return "Projects, milestones, deep work sessions."
         case .learning: return "Study hours, books, courses, certifications."
         }
     }

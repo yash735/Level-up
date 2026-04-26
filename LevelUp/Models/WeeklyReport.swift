@@ -31,6 +31,8 @@ final class WeeklyReport {
     var grade: String
     var summaryText: String
     var createdAt: Date
+    /// Total work entries logged this week (replaces bvaActionsCount + paralaiLogsCount).
+    var workEntriesCount: Int?
 
     init(weekStartDate: Date,
          weekEndDate: Date,
@@ -47,7 +49,8 @@ final class WeeklyReport {
          habitsCompletionRate: Double = 0,
          xpChangeVsLastWeek: Double = 0,
          grade: String = "C",
-         summaryText: String = "") {
+         summaryText: String = "",
+         workEntriesCount: Int? = nil) {
         self.id = UUID()
         self.weekStartDate = weekStartDate
         self.weekEndDate = weekEndDate
@@ -66,5 +69,6 @@ final class WeeklyReport {
         self.grade = grade
         self.summaryText = summaryText
         self.createdAt = .now
+        self.workEntriesCount = workEntriesCount
     }
 }
