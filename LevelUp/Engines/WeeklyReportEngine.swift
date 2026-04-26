@@ -274,18 +274,17 @@ enum WeeklyReportEngine {
     }
 
     private static func sumLearningXP(from start: Date, to end: Date, in context: ModelContext) -> Int {
-        let courseXP: Int = {
-            let descriptor = FetchDescriptor<Course>()
-            let all = (try? context.fetch(descriptor)) ?? []
-            return all.reduce(0) { $0 + $1.xpEarned } // rough — courses don't have per-session dates
-        }()
-        return courseXP
+        let desc = FetchDescriptor<LearningLog>()
+        let all = (try? context.fetch(desc)) ?? []
+        return all.filter { $0.date >= start && $0.date < end }
+            .reduce(0) { $0 + $1.xpEarned }
     }
 
     private static func sumStudyHours(from start: Date, to end: Date, in context: ModelContext) -> Double {
-        let descriptor = FetchDescriptor<Course>()
-        let all = (try? context.fetch(descriptor)) ?? []
-        return all.reduce(0) { $0 + $1.totalHours }
+        let desc = FetchDescriptor<LearningLog>()
+        let all = (try? context.fetch(desc)) ?? []
+        return all.filter { $0.date >= start && $0.date < end }
+            .reduce(0.0) { $0 + $1.hoursStudied }
     }
 
     private static func habitCompletionRate(from start: Date, to end: Date, in context: ModelContext) -> Double {

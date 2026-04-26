@@ -195,22 +195,11 @@ enum BonusEngine {
             return entries.contains(where: { cal.isDate($0.date, inSameDayAs: yesterday) })
         }()
 
-        // Check learning track: course, book, or certification log
+        // Check learning track: any LearningLog entry yesterday
         let hasLearning: Bool = {
-            let courseDesc = FetchDescriptor<Course>()
-            let courses = (try? context.fetch(courseDesc)) ?? []
-            // Check if any course was updated yesterday (completedLessons changed)
-            if courses.contains(where: { $0.totalHours > 0 && cal.isDate($0.startedAt, inSameDayAs: yesterday) }) { return true }
-
-            let bookDesc = FetchDescriptor<Book>()
-            let books = (try? context.fetch(bookDesc)) ?? []
-            if books.contains(where: { $0.pagesRead > 0 && cal.isDate($0.startedAt, inSameDayAs: yesterday) }) { return true }
-
-            let certDesc = FetchDescriptor<Certification>()
-            let certs = (try? context.fetch(certDesc)) ?? []
-            if certs.contains(where: { $0.studiedHours > 0 && cal.isDate($0.targetDate ?? .distantPast, inSameDayAs: yesterday) }) { return true }
-
-            return false
+            let learnDesc = FetchDescriptor<LearningLog>()
+            let logs = (try? context.fetch(learnDesc)) ?? []
+            return logs.contains(where: { cal.isDate($0.date, inSameDayAs: yesterday) })
         }()
 
         guard hasFitness && hasWork && hasLearning else { return }

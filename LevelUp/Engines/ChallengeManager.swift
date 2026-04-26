@@ -329,10 +329,10 @@ enum ChallengeManager {
     }
 
     private static func studyHoursThisWeek(from start: Date, to end: Date, in context: ModelContext) -> Double {
-        // Approximate from course total hours (no per-session dates)
-        let desc = FetchDescriptor<Course>()
+        let desc = FetchDescriptor<LearningLog>()
         let all = (try? context.fetch(desc)) ?? []
-        return all.reduce(0.0) { $0 + $1.totalHours }
+        return all.filter { $0.date >= start && $0.date < end }
+            .reduce(0.0) { $0 + $1.hoursStudied }
     }
 
     private static func deepWorkSessionsThisWeek(from start: Date, to end: Date, in context: ModelContext) -> Int {

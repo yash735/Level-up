@@ -45,10 +45,11 @@ enum BaselineCalculator {
         let totalWorkHours = recentWork.reduce(0.0) { $0 + $1.hoursSpent }
         let avgWorkHours = totalWorkHours / 4.0
 
-        // Study hours
-        let courseDesc = FetchDescriptor<Course>()
-        let allCourses = (try? context.fetch(courseDesc)) ?? []
-        let avgStudyHours = allCourses.reduce(0.0) { $0 + $1.totalHours } / max(1, Double(allBaselines.count + 1))
+        // Study hours (from LearningLog per-session entries)
+        let learnDesc = FetchDescriptor<LearningLog>()
+        let allLearn = (try? context.fetch(learnDesc)) ?? []
+        let recentStudy = allLearn.filter { $0.date >= fourWeeksAgo && $0.date < weekStart }
+        let avgStudyHours = recentStudy.reduce(0.0) { $0 + $1.hoursStudied } / 4.0
 
         // Habits completion rate
         let habitDesc = FetchDescriptor<HabitLog>()
