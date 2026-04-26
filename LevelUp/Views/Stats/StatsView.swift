@@ -78,7 +78,6 @@ struct StatsView: View {
     @Query(sort: \Project.orderIndex) private var projects: [Project]
     @Query(sort: \WorkEntry.date) private var workEntries: [WorkEntry]
     @Query(sort: \ProjectMilestone.orderIndex) private var projectMilestones: [ProjectMilestone]
-    @Query(sort: \OtherWorkLog.date) private var otherWorkLogs: [OtherWorkLog]
     @Query(sort: \Course.name) private var courses: [Course]
     @Query(sort: \Book.title) private var books: [Book]
     @Query(sort: \Certification.name) private var certifications: [Certification]
@@ -633,7 +632,7 @@ struct StatsView: View {
             // Work PRs
             workPersonalRecords
 
-            if workEntries.isEmpty && otherWorkLogs.isEmpty {
+            if workEntries.isEmpty {
                 emptyState("Start logging work to see your productivity trends", icon: "briefcase.fill")
             }
         }

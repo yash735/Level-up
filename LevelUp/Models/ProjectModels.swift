@@ -22,6 +22,12 @@ final class Project {
     var iconName: String
     var orderIndex: Int
 
+    @Relationship(deleteRule: .cascade, inverse: \ProjectMilestone.project)
+    var milestones: [ProjectMilestone] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \WorkEntry.project)
+    var entries: [WorkEntry] = []
+
     init(name: String,
          projectDescription: String = "",
          colorHex: String = "#FF9500",

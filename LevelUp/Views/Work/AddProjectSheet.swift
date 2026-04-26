@@ -195,10 +195,12 @@ struct AddProjectSheet: View {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
+        let existingCount = (try? context.fetchCount(FetchDescriptor<Project>())) ?? 0
         let project = Project(name: trimmed,
                               projectDescription: descriptionText,
                               colorHex: selectedColorHex,
-                              iconName: selectedIcon)
+                              iconName: selectedIcon,
+                              orderIndex: existingCount)
         context.insert(project)
         try? context.save()
 

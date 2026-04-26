@@ -332,13 +332,17 @@ struct ProjectTabView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(WorkEntry.xpRate(for: actionType)) XP/hr")
-                            .font(.caption2).fontWeight(.heavy)
-                            .foregroundStyle(projectColor)
                         if actionType == "Deep Work" {
+                            Text("\(Int(Double(WorkEntry.xpRate(for: actionType)) * 1.5)) XP/hr")
+                                .font(.caption2).fontWeight(.heavy)
+                                .foregroundStyle(Theme.xpGold)
                             Text("1.5x Deep Work")
                                 .font(.caption2)
-                                .foregroundStyle(Theme.xpGold)
+                                .foregroundStyle(Theme.xpGold.opacity(0.7))
+                        } else {
+                            Text("\(WorkEntry.xpRate(for: actionType)) XP/hr")
+                                .font(.caption2).fontWeight(.heavy)
+                                .foregroundStyle(projectColor)
                         }
                     }
 
