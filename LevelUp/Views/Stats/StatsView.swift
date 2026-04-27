@@ -14,17 +14,17 @@ import Charts
 
 // MARK: - Chart helper types
 
-private struct WeekBucket: Identifiable {
-    let id = UUID()
-    let weekStart: Date
-    var gymCount: Int = 0
-    var cardioCount: Int = 0
-}
-
 private struct DayBucket: Identifiable {
     let id = UUID()
     let date: Date
     var calories: Int = 0
+}
+
+private struct DayWorkout: Identifiable {
+    let id = UUID()
+    let date: Date
+    let type: String
+    let count: Int
 }
 
 private struct DayXP: Identifiable {
@@ -370,56 +370,95 @@ struct StatsView: View {
         }
     }
 
-    // -- Workout frequency chart
-    private func buildWorkoutBuckets(gym: [GymSession], cardio: [CardioSession]) -> [WeekBucket] {
+    // -- Workout frequency chart (daily bars)
+    private func buildDailyWorkoutData(gym: [GymSession], cardio: [CardioSession]) -> [DayWorkout] {
         let cal = Calendar.current
-        var buckets: [String: WeekBucket] = [:]
         let fmt = DateFormatter()
-        fmt.dateFormat = "yyyy-'W'ww"
+        fmt.dateFormat = "yyyy-MM-dd"
+
+        var gymDays: [String: Int] = [:]
+        var cardioDays: [String: Int] = [:]
 
         for s in gym {
             let key = fmt.string(from: s.date)
-            let weekStart = cal.date(from: cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: s.date)) ?? s.date
-            buckets[key, default: WeekBucket(weekStart: weekStart)].gymCount += 1
+            gymDays[key, default: 0] += 1
         }
         for c in cardio {
             let key = fmt.string(from: c.date)
-            let weekStart = cal.date(from: cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: c.date)) ?? c.date
-            buckets[key, default: WeekBucket(weekStart: weekStart)].cardioCount += 1
+            cardioDays[key, default: 0] += 1
         }
-        return Array(buckets.values.sorted { $0.weekStart < $1.weekStart }.suffix(12))
+
+        let allKeys = Set(gymDays.keys).union(cardioDays.keys)
+        var result: [DayWorkout] = []
+        for key in allKeys {
+            let date = cal.startOfDay(for: fmt.date(from: key) ?? .now)
+            if let g = gymDays[key], g > 0 {
+                result.append(DayWorkout(date: date, type: "Gym", count: g))
+            }
+            if let c = cardioDays[key], c > 0 {
+                result.append(DayWorkout(date: date, type: "Cardio", count: c))
+            }
+        }
+        return result.sorted { $0.date < $1.date }
     }
 
     @ViewBuilder
     private func workoutFrequencyChart(gym: [GymSession], cardio: [CardioSession]) -> some View {
-        let sorted = buildWorkoutBuckets(gym: gym, cardio: cardio)
+        let data = buildDailyWorkoutData(gym: gym, cardio: cardio)
+        let totalGym = gym.count
+        let totalCardio = cardio.count
 
         Card {
             VStack(alignment: .leading, spacing: 14) {
-                Text("WORKOUT FREQUENCY")
-                    .font(.caption).fontWeight(.heavy).tracking(2)
-                    .foregroundStyle(Theme.textSecondary)
-
-                Chart(Array(sorted)) { bucket in
-                    BarMark(x: .value("Week", bucket.weekStart, unit: .weekOfYear),
-                            y: .value("Gym", bucket.gymCount))
-                        .foregroundStyle(Theme.primaryAccent)
-                    BarMark(x: .value("Week", bucket.weekStart, unit: .weekOfYear),
-                            y: .value("Cardio", bucket.cardioCount))
+                HStack {
+                    Text("WORKOUT FREQUENCY")
+                        .font(.caption).fontWeight(.heavy).tracking(2)
+                        .foregroundStyle(Theme.textSecondary)
+                    Spacer()
+                    Text("\(totalGym + totalCardio) sessions")
+                        .font(.caption).fontWeight(.heavy).monospacedDigit()
                         .foregroundStyle(Theme.xpGreen)
                 }
-                .chartXAxis { AxisMarks(values: .automatic) { _ in AxisValueLabel().foregroundStyle(Theme.textSecondary) } }
-                .chartYAxis { AxisMarks { _ in AxisValueLabel().foregroundStyle(Theme.textSecondary) } }
-                .frame(height: 200)
 
-                HStack(spacing: 16) {
-                    HStack(spacing: 4) {
-                        Circle().fill(Theme.primaryAccent).frame(width: 8, height: 8)
-                        Text("Gym").font(.caption2).foregroundStyle(Theme.textSecondary)
+                Chart(data) { item in
+                    BarMark(
+                        x: .value("Day", item.date, unit: .day),
+                        y: .value("Count", item.count)
+                    )
+                    .foregroundStyle(by: .value("Type", item.type))
+                    .cornerRadius(3)
+                }
+                .chartForegroundStyleScale([
+                    "Gym": Theme.primaryAccent,
+                    "Cardio": Theme.xpGreen
+                ])
+                .chartXAxis {
+                    AxisMarks(values: .automatic) { _ in
+                        AxisValueLabel().foregroundStyle(Theme.textSecondary)
                     }
-                    HStack(spacing: 4) {
-                        Circle().fill(Theme.xpGreen).frame(width: 8, height: 8)
-                        Text("Cardio").font(.caption2).foregroundStyle(Theme.textSecondary)
+                }
+                .chartYAxis {
+                    AxisMarks { _ in
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                            .foregroundStyle(Theme.cardBorder)
+                        AxisValueLabel().foregroundStyle(Theme.textSecondary)
+                    }
+                }
+                .chartLegend(.hidden)
+                .frame(height: 220)
+
+                HStack(spacing: 20) {
+                    HStack(spacing: 6) {
+                        RoundedRectangle(cornerRadius: 3).fill(Theme.primaryAccent)
+                            .frame(width: 14, height: 14)
+                        Text("Gym (\(totalGym))").font(.caption2).fontWeight(.semibold)
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    HStack(spacing: 6) {
+                        RoundedRectangle(cornerRadius: 3).fill(Theme.xpGreen)
+                            .frame(width: 14, height: 14)
+                        Text("Cardio (\(totalCardio))").font(.caption2).fontWeight(.semibold)
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
             }
