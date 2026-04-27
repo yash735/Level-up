@@ -9,7 +9,9 @@ struct WorkView: View {
     @Query(sort: \Project.orderIndex) private var allProjects: [Project]
 
     @State private var selectedProjectID: UUID?
+    @State private var showingQuickTasks = false
     @State private var addProjectToken: AddProjectToken?
+    @State private var projectToDelete: Project?
 
     private struct AddProjectToken: Identifiable {
         let id = UUID()
@@ -33,8 +35,11 @@ struct WorkView: View {
 
                 projectTabBar
 
-                if let project = selectedProject {
+                if showingQuickTasks {
+                    QuickTasksTabView(user: user)
+                } else if let project = selectedProject {
                     ProjectTabView(user: user, project: project)
+                        .id(project.id)
                 } else {
                     emptyState
                 }
@@ -50,6 +55,23 @@ struct WorkView: View {
                 if generateMilestones {
                     triggerAIGeneration(for: project)
                 }
+            }
+        }
+        .alert("Delete Project?",
+               isPresented: Binding(
+                   get: { projectToDelete != nil },
+                   set: { if !$0 { projectToDelete = nil } }
+               )
+        ) {
+            Button("Delete", role: .destructive) {
+                if let project = projectToDelete {
+                    deleteProject(project)
+                }
+            }
+            Button("Cancel", role: .cancel) { projectToDelete = nil }
+        } message: {
+            if let project = projectToDelete {
+                Text("This will permanently delete \"\(project.name)\" and all its entries and milestones.")
             }
         }
         .onChange(of: projects.count) {
@@ -85,12 +107,42 @@ struct WorkView: View {
 
     private var projectTabBar: some View {
         HStack(spacing: 8) {
+            Button {
+                withAnimation(.easeOut(duration: 0.15)) {
+                    showingQuickTasks = true
+                    selectedProjectID = nil
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "checklist")
+                        .font(.caption)
+                    Text("QUICK TASKS")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .tracking(1)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .foregroundStyle(showingQuickTasks ? Theme.secondaryAccent : Theme.textSecondary)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(showingQuickTasks ? Theme.secondaryAccent.opacity(0.14) : Color.clear)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(showingQuickTasks ? Theme.secondaryAccent.opacity(0.55) : Theme.cardBorder,
+                                lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+
             ForEach(projects) { project in
-                let isSelected = project.id == (selectedProjectID ?? projects.first?.id)
+                let isSelected = !showingQuickTasks && project.id == (selectedProjectID ?? projects.first?.id)
                 let tint = Color(hex: project.colorHex) ?? Theme.secondaryAccent
 
                 Button {
                     withAnimation(.easeOut(duration: 0.15)) {
+                        showingQuickTasks = false
                         selectedProjectID = project.id
                     }
                 } label: {
@@ -98,12 +150,9 @@ struct WorkView: View {
                         Image(systemName: project.iconName)
                             .font(.caption)
                         Text(project.name.uppercased())
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .tracking(1)
+                            .font(.subheadline).fontWeight(.semibold).tracking(1)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, 16).padding(.vertical, 10)
                     .foregroundStyle(isSelected ? tint : Theme.textSecondary)
                     .background(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -116,6 +165,19 @@ struct WorkView: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .contextMenu {
+                    Button {
+                        archiveProject(project)
+                    } label: {
+                        Label("Archive", systemImage: "archivebox")
+                    }
+                    Divider()
+                    Button(role: .destructive) {
+                        projectToDelete = project
+                    } label: {
+                        Label("Delete Project", systemImage: "trash")
+                    }
+                }
             }
 
             Button { addProjectToken = AddProjectToken() } label: {
@@ -164,6 +226,23 @@ struct WorkView: View {
             }
             .padding(32)
             .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func archiveProject(_ project: Project) {
+        project.isArchived = true
+        try? context.save()
+        if selectedProjectID == project.id {
+            selectedProjectID = projects.first(where: { $0.id != project.id })?.id
+        }
+    }
+
+    private func deleteProject(_ project: Project) {
+        let wasSelected = selectedProjectID == project.id
+        context.delete(project)
+        try? context.save()
+        if wasSelected {
+            selectedProjectID = projects.first?.id
         }
     }
 

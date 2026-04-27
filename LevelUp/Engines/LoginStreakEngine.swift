@@ -71,6 +71,10 @@ enum LoginStreakEngine {
         state.lastBonusDate = today
         state.totalLoginDays += 1
 
+        user.currentStreak = state.currentStreak
+        user.longestStreak = state.longestStreak
+        user.lastActiveDate = today
+
         // Compute bonus: base + scaling cap.
         let streakBonus = min(maxStreakBonus,
                               (state.currentStreak - 1) * perStreakDayXP)
@@ -81,6 +85,8 @@ enum LoginStreakEngine {
         // learning feels thematically right for "showed up".
         user.award(total, to: .learning)
 
+        let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
+        UnlockCenter.shared.present(newly)
         try? context.save()
 
         GameEventCenter.shared.fireDailyBonus(xp: total,

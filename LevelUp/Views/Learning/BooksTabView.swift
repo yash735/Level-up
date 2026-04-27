@@ -237,10 +237,14 @@ struct BooksTabView: View {
     private func logPages(_ book: Book) {
         guard let added = Int(pageDrafts[book.id] ?? ""), added > 0 else { return }
         book.pagesRead = min(book.totalPages, book.pagesRead + added)
-        // 30 XP per page-logging session (reading is precious).
+        let hours = Double(added) / 60.0
+        book.totalHours += hours
         let xp = 30
         book.xpEarned += xp
         user.award(xp, to: .learning)
+        context.insert(LearningLog(type: "book", name: book.title, hoursStudied: hours, xpEarned: xp))
+        PersonalRecordsEngine.evaluateStudySession(minutes: max(1, added), courseName: book.title, in: context)
+        ChallengeManager.updateProgress(user: user, in: context)
         pageDrafts[book.id] = ""
         try? context.save()
         evaluate()
@@ -253,6 +257,8 @@ struct BooksTabView: View {
         book.pagesRead = book.totalPages
         book.xpEarned += XPEngine.xpForBookFinished
         user.award(XPEngine.xpForBookFinished, to: .learning)
+        context.insert(LearningLog(type: "book", name: book.title, hoursStudied: 0, xpEarned: XPEngine.xpForBookFinished, notes: "Finished"))
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
         evaluate()
     }

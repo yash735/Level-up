@@ -20,6 +20,16 @@ struct SettingsView: View {
     @State private var name: String = ""
     @State private var showResetConfirm = false
     @State private var showSavedToast = false
+    @State private var showImportConfirm = false
+    @State private var importFileURL: URL?
+    @State private var showImportSuccess = false
+    @State private var showImportError = false
+    @State private var importErrorMessage = ""
+
+    // Weekly Targets
+    @AppStorage("weeklyGymSessionsTarget") private var weeklyGymSessionsTarget = 5
+    @AppStorage("weeklyWorkHoursTarget") private var weeklyWorkHoursTarget = 40
+    @AppStorage("weeklyStudyHoursTarget") private var weeklyStudyHoursTarget = 10
 
     // Phase 5 — Notification settings
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
@@ -39,8 +49,6 @@ struct SettingsView: View {
     // Phase 5 — Menu Bar settings
     @AppStorage("menuBarShowBadge") private var menuBarShowBadge = true
     @AppStorage("menuBarShowPulse") private var menuBarShowPulse = true
-    @AppStorage("menuBarDefaultTab") private var menuBarDefaultTab = "fitness"
-
     // Phase 5 — Launch settings
     @AppStorage("launchAtLogin") private var launchAtLogin = true
     @AppStorage("openWindowAtLaunch") private var openWindowAtLaunch = false
@@ -88,6 +96,26 @@ struct SettingsView: View {
                                     .transition(.opacity)
                             }
                         }
+                    }
+                    .padding(Theme.cardPadding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                // MARK: Weekly Targets
+                Card {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("WEEKLY TARGETS")
+                            .font(.caption).fontWeight(.heavy).tracking(2)
+                            .foregroundStyle(Theme.xpGreen)
+                        Text("Set your weekly goals. Progress shows on the dashboard.")
+                            .font(.caption).foregroundStyle(Theme.textSecondary)
+
+                        targetStepper("Gym Sessions / Week", value: $weeklyGymSessionsTarget,
+                                      range: 1...7, color: Theme.xpGreen)
+                        targetStepper("Work Hours / Week", value: $weeklyWorkHoursTarget,
+                                      range: 5...80, color: Theme.secondaryAccent)
+                        targetStepper("Study Hours / Week", value: $weeklyStudyHoursTarget,
+                                      range: 1...40, color: Theme.primaryAccent)
                     }
                     .padding(Theme.cardPadding)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -143,18 +171,6 @@ struct SettingsView: View {
                             .tint(Theme.secondaryAccent)
                         Toggle("Show XP Pulse Animation", isOn: $menuBarShowPulse)
                             .tint(Theme.secondaryAccent)
-
-                        HStack {
-                            Text("Default Quick Log Tab")
-                                .foregroundStyle(Theme.textPrimary)
-                            Spacer()
-                            Picker("", selection: $menuBarDefaultTab) {
-                                Text("Fitness").tag("fitness")
-                                Text("Work").tag("work")
-                                Text("Learning").tag("learning")
-                            }
-                            .frame(width: 140)
-                        }
                     }
                     .padding(Theme.cardPadding)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -181,6 +197,68 @@ struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
+
+                // MARK: Data Management
+                Card {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Text("DATA")
+                            .font(.caption).fontWeight(.heavy).tracking(2)
+                            .foregroundStyle(Theme.secondaryAccent)
+
+                        Text("Export a full backup of all your data, or restore from a previous backup.")
+                            .font(.caption).foregroundStyle(Theme.textSecondary)
+
+                        HStack(spacing: 12) {
+                            Button {
+                                exportBackup()
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "square.and.arrow.up")
+                                    Text("Export Backup")
+                                }
+                                .font(.subheadline).fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Theme.secondaryAccent.opacity(0.12))
+                                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .stroke(Theme.secondaryAccent.opacity(0.4), lineWidth: 1))
+                                .foregroundStyle(Theme.secondaryAccent)
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            }
+                            .buttonStyle(.plain)
+
+                            Button {
+                                pickImportFile()
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "square.and.arrow.down")
+                                    Text("Import Backup")
+                                }
+                                .font(.subheadline).fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Theme.primaryAccent.opacity(0.12))
+                                .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .stroke(Theme.primaryAccent.opacity(0.4), lineWidth: 1))
+                                .foregroundStyle(Theme.primaryAccent)
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        if showImportSuccess {
+                            HStack(spacing: 6) {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Backup restored successfully.")
+                            }
+                            .font(.caption).fontWeight(.semibold)
+                            .foregroundStyle(Theme.xpGreen)
+                            .transition(.opacity)
+                        }
+                    }
+                    .padding(Theme.cardPadding)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
 
                 // MARK: Danger zone
                 Card {
@@ -240,6 +318,52 @@ struct SettingsView: View {
         } message: {
             Text("This will erase all XP, logs, and unlocks. You'll go back to the welcome screen.")
         }
+        .alert("Restore from backup?", isPresented: $showImportConfirm) {
+            Button("Cancel", role: .cancel) { importFileURL = nil }
+            Button("Restore", role: .destructive) { performImport() }
+        } message: {
+            Text("This will reset your current data and replace it with the backup. Cannot be undone.")
+        }
+        .alert("Import Failed", isPresented: $showImportError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(importErrorMessage)
+        }
+    }
+
+    // MARK: - Weekly Target Helpers
+
+    private func targetStepper(_ label: String, value: Binding<Int>,
+                               range: ClosedRange<Int>, color: Color) -> some View {
+        HStack {
+            Text(label).foregroundStyle(Theme.textPrimary)
+            Spacer()
+            HStack(spacing: 12) {
+                Button {
+                    if value.wrappedValue > range.lowerBound { value.wrappedValue -= 1 }
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title3).foregroundStyle(color.opacity(0.7))
+                }
+                .buttonStyle(.plain)
+                .disabled(value.wrappedValue <= range.lowerBound)
+
+                Text("\(value.wrappedValue)")
+                    .font(.system(size: 18, weight: .heavy, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(color)
+                    .frame(width: 36)
+
+                Button {
+                    if value.wrappedValue < range.upperBound { value.wrappedValue += 1 }
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title3).foregroundStyle(color.opacity(0.7))
+                }
+                .buttonStyle(.plain)
+                .disabled(value.wrappedValue >= range.upperBound)
+            }
+        }
     }
 
     // MARK: - Phase 5 Helpers
@@ -262,6 +386,55 @@ struct SettingsView: View {
 
     private func rescheduleNotifications() {
         NotificationManager.shared.rescheduleAll(container: context.container)
+    }
+
+    // MARK: - Export / Import
+
+    private func exportBackup() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = "levelup-backup.json"
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            guard let data = ExportImportEngine.exportAll(user: user, context: context) else { return }
+            try? data.write(to: url)
+        }
+    }
+
+    private func pickImportFile() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            importFileURL = url
+            showImportConfirm = true
+        }
+    }
+
+    private func performImport() {
+        guard let url = importFileURL else { return }
+        do {
+            let data = try Data(contentsOf: url)
+            resetAllData()
+            // Re-create user after reset
+            let freshUser = User(name: "Yashodev")
+            context.insert(freshUser)
+            try? context.save()
+            try ExportImportEngine.importAll(from: data, user: freshUser, context: context)
+            UnlockEngine.seedUnlocks(into: context)
+            BonusEngine.seedAchievements(into: context)
+            UnlockEngine.evaluateUnlocks(user: freshUser, context: context)
+            try? context.save()
+            withAnimation { showImportSuccess = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation { showImportSuccess = false }
+            }
+        } catch {
+            importErrorMessage = error.localizedDescription
+            showImportError = true
+        }
+        importFileURL = nil
     }
 
     // MARK: - Version

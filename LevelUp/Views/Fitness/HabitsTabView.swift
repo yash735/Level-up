@@ -180,6 +180,7 @@ struct HabitsTabView: View {
             log.bonusAwarded = true
             log.xpEarned += XPEngine.xpForAllDailyHabits
             user.award(XPEngine.xpForAllDailyHabits, to: .fitness)
+            ChallengeManager.updateProgress(user: user, in: context)
             try? context.save()
             let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
             UnlockCenter.shared.present(newly)

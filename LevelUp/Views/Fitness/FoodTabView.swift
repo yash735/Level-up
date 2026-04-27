@@ -495,6 +495,7 @@ struct FoodTabView: View {
                               xpEarned: XPEngine.xpForNutritionLog)
         context.insert(entry)
         user.award(XPEngine.xpForNutritionLog, to: .fitness)
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
 
         let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)

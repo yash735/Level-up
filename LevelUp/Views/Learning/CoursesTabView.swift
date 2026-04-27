@@ -230,11 +230,14 @@ struct CoursesTabView: View {
 
     private func logLesson(_ course: Course) {
         course.completedLessons = min(course.totalLessons, course.completedLessons + 1)
+        course.totalHours += 0.5
         course.xpEarned += XPEngine.xpForStudy30Min
         user.award(XPEngine.xpForStudy30Min, to: .learning)
+        context.insert(LearningLog(type: "course", name: course.name, hoursStudied: 0.5, xpEarned: XPEngine.xpForStudy30Min))
         PersonalRecordsEngine.evaluateStudySession(minutes: 30,
                                                    courseName: course.name,
                                                    in: context)
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
         evaluate()
     }
@@ -248,6 +251,7 @@ struct CoursesTabView: View {
         PersonalRecordsEngine.evaluateStudySession(minutes: Int(hours * 60),
                                                    courseName: course.name,
                                                    in: context)
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
         evaluate()
     }
@@ -259,6 +263,8 @@ struct CoursesTabView: View {
         course.completedLessons = course.totalLessons
         course.xpEarned += XPEngine.xpForCourseComplete
         user.award(XPEngine.xpForCourseComplete, to: .learning)
+        context.insert(LearningLog(type: "course", name: course.name, hoursStudied: 0, xpEarned: XPEngine.xpForCourseComplete, notes: "Completed"))
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
         evaluate()
     }

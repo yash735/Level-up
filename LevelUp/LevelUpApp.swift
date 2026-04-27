@@ -60,7 +60,8 @@ struct LevelUpApp: App {
         WeeklyChallenge.self,
         BaselineStats.self,
         SeasonCarryover.self,
-        Achievement.self
+        Achievement.self,
+        DailyTodoItem.self
     ]
 
     init() {

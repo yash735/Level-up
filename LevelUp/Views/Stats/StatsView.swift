@@ -78,6 +78,7 @@ struct StatsView: View {
     @Query(sort: \Project.orderIndex) private var projects: [Project]
     @Query(sort: \WorkEntry.date) private var workEntries: [WorkEntry]
     @Query(sort: \ProjectMilestone.orderIndex) private var projectMilestones: [ProjectMilestone]
+    @Query(sort: \LearningLog.date) private var learningLogs: [LearningLog]
     @Query(sort: \Course.name) private var courses: [Course]
     @Query(sort: \Book.title) private var books: [Book]
     @Query(sort: \Certification.name) private var certifications: [Certification]
@@ -179,14 +180,23 @@ struct StatsView: View {
     // ============================================================
 
     private var overviewSection: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        let start = timeRange.startDate
+        return VStack(alignment: .leading, spacing: 24) {
             SectionHeader(title: "Overview")
 
-            let totalWorkouts = gymSessions.filter { !$0.isRestDay }.count + cardioSessions.count
+            let totalWorkouts = gymSessions.filter { !$0.isRestDay && $0.date >= start }.count
+                + cardioSessions.filter { $0.date >= start }.count
             let earned = unlocks.filter { $0.isUnlocked }.count
             let totalUnlocks = unlocks.count
-            let totalStudyHours = courses.reduce(0.0) { $0 + $1.totalHours }
-                + certifications.reduce(0.0) { $0 + $1.studiedHours }
+            let totalStudyHours = learningLogs.filter { $0.date >= start }.reduce(0.0) { $0 + $1.hoursStudied }
+            let gymXP = gymSessions.filter { $0.date >= start && !$0.isRestDay }.reduce(0) { $0 + $1.xpEarned }
+            let cardioXPR = cardioSessions.filter { $0.date >= start }.reduce(0) { $0 + $1.xpEarned }
+            let workXPR = workEntries.filter { $0.date >= start }.reduce(0) { $0 + $1.xpEarned }
+            let learnXPR = learningLogs.filter { $0.date >= start }.reduce(0) { $0 + $1.xpEarned }
+            let foodXPR = foodEntries.filter { $0.date >= start }.reduce(0) { $0 + $1.xpEarned }
+            let weightXPR = weightEntries.filter { $0.date >= start }.reduce(0) { $0 + $1.xpEarned }
+            let habitXPR = habitLogs.filter { $0.date >= start }.reduce(0) { $0 + $1.xpEarned }
+            let totalXPInRange = gymXP + cardioXPR + workXPR + learnXPR + foodXPR + weightXPR + habitXPR
             let daysActive: Int = {
                 guard let earliest = user.createdAt as Date? else { return 0 }
                 return max(1, Calendar.current.dateComponents([.day], from: earliest, to: .now).day ?? 1)
@@ -194,7 +204,7 @@ struct StatsView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()),
                                 GridItem(.flexible())], spacing: 14) {
-                overviewCard("TOTAL XP", user.totalXP.formatted(), Theme.xpGreen)
+                overviewCard("TOTAL XP", totalXPInRange.formatted(), Theme.xpGreen)
                 overviewCard("DAYS ACTIVE", "\(daysActive)", Theme.secondaryAccent)
                 overviewCard("UNLOCKS", "\(earned)/\(totalUnlocks)", Theme.primaryAccent)
                 overviewCard("LONGEST STREAK", "\(user.longestStreak)", Theme.flameHot)
@@ -1099,9 +1109,21 @@ struct StatsView: View {
             let key = fmt.string(from: f.date)
             dayMap[key, default: (0,0,0)].f += f.xpEarned
         }
+        for we in weightEntries.filter({ $0.date >= start }) {
+            let key = fmt.string(from: we.date)
+            dayMap[key, default: (0,0,0)].f += we.xpEarned
+        }
+        for h in habitLogs.filter({ $0.date >= start }) {
+            let key = fmt.string(from: h.date)
+            dayMap[key, default: (0,0,0)].f += h.xpEarned
+        }
         for w in workEntries.filter({ $0.date >= start }) {
             let key = fmt.string(from: w.date)
             dayMap[key, default: (0,0,0)].w += w.xpEarned
+        }
+        for l in learningLogs.filter({ $0.date >= start }) {
+            let key = fmt.string(from: l.date)
+            dayMap[key, default: (0,0,0)].l += l.xpEarned
         }
 
         let sorted = dayMap.map { key, val in
@@ -1226,51 +1248,11 @@ struct StatsView: View {
     private func exportData() {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.json]
-        panel.nameFieldStringValue = "levelup-export.json"
+        panel.nameFieldStringValue = "levelup-backup.json"
         panel.begin { response in
             guard response == .OK, let url = panel.url else { return }
-            let repo = StatsRepository(context: context)
-            let data = buildExportJSON(repo: repo)
-            try? data.write(to: url, atomically: true, encoding: .utf8)
+            guard let data = ExportImportEngine.exportAll(user: user, context: context) else { return }
+            try? data.write(to: url)
         }
-    }
-
-    private func buildExportJSON(repo: StatsRepository) -> String {
-        var dict: [String: Any] = [:]
-        dict["exportDate"] = ISO8601DateFormatter().string(from: .now)
-        dict["user"] = ["name": user.name, "totalXP": user.totalXP,
-                        "fitnessXP": user.fitnessXP, "workXP": user.workXP,
-                        "learningXP": user.learningXP]
-
-        // Fitness
-        let gym = repo.allGymSessions().map { s in
-            ["date": ISO8601DateFormatter().string(from: s.date),
-             "splitDay": s.splitDay, "intensity": s.intensityRaw,
-             "xpEarned": s.xpEarned] as [String: Any]
-        }
-        dict["gymSessions"] = gym
-
-        let weight = repo.allWeightEntries().map { w in
-            ["date": ISO8601DateFormatter().string(from: w.date),
-             "weightKg": w.weightKg] as [String: Any]
-        }
-        dict["weightEntries"] = weight
-
-        // Work
-        let work = repo.allWorkEntries().map { w in
-            ["date": ISO8601DateFormatter().string(from: w.date),
-             "project": w.project?.name ?? "Unassigned",
-             "actionType": w.actionType,
-             "title": w.title, "hours": w.hoursSpent,
-             "xp": w.xpEarned] as [String: Any]
-        }
-        dict["workEntries"] = work
-
-        // Serialize
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: dict,
-                                                         options: [.prettyPrinted, .sortedKeys]) else {
-            return "{}"
-        }
-        return String(data: jsonData, encoding: .utf8) ?? "{}"
     }
 }

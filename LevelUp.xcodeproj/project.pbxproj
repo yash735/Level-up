@@ -81,7 +81,9 @@
 		FAB10000FAB10000BBB0004C /* LoginItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004C /* LoginItemManager.swift */; };
 		FAB10000FAB10000BBB0004D /* ProjectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004D /* ProjectModels.swift */; };
 		FAB10000FAB10000BBB0004E /* ProjectTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004E /* ProjectTabView.swift */; };
+		FAB10000FAB10000BBB00099 /* QuickTasksTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00099 /* QuickTasksTabView.swift */; };
 		FAB10000FAB10000BBB0004F /* AddProjectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF0004F /* AddProjectSheet.swift */; };
+		FAB10000FAB10000BBB00050 /* ExportImportEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB10000FAB10000FFF00050 /* ExportImportEngine.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -161,7 +163,9 @@
 		FAB10000FAB10000FFF0004C /* LoginItemManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemManager.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0004D /* ProjectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModels.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0004E /* ProjectTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectTabView.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00099 /* QuickTasksTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickTasksTabView.swift; sourceTree = "<group>"; };
 		FAB10000FAB10000FFF0004F /* AddProjectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProjectSheet.swift; sourceTree = "<group>"; };
+		FAB10000FAB10000FFF00050 /* ExportImportEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportImportEngine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -260,6 +264,7 @@
 				FAB10000FAB10000FFF00049 /* MenuBarManager.swift */,
 				FAB10000FAB10000FFF0004B /* NotificationManager.swift */,
 				FAB10000FAB10000FFF0004C /* LoginItemManager.swift */,
+				FAB10000FAB10000FFF00050 /* ExportImportEngine.swift */,
 			);
 			path = Engines;
 			sourceTree = "<group>";
@@ -336,6 +341,7 @@
 			children = (
 				FAB10000FAB10000FFF00027 /* WorkView.swift */,
 				FAB10000FAB10000FFF0004E /* ProjectTabView.swift */,
+				FAB10000FAB10000FFF00099 /* QuickTasksTabView.swift */,
 				FAB10000FAB10000FFF0004F /* AddProjectSheet.swift */,
 			);
 			path = Work;
@@ -544,7 +550,9 @@
 				FAB10000FAB10000BBB0004C /* LoginItemManager.swift in Sources */,
 				FAB10000FAB10000BBB0004D /* ProjectModels.swift in Sources */,
 				FAB10000FAB10000BBB0004E /* ProjectTabView.swift in Sources */,
+				FAB10000FAB10000BBB00099 /* QuickTasksTabView.swift in Sources */,
 				FAB10000FAB10000BBB0004F /* AddProjectSheet.swift in Sources */,
+				FAB10000FAB10000BBB00050 /* ExportImportEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

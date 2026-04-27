@@ -250,6 +250,7 @@ struct CertificationsTabView: View {
         PersonalRecordsEngine.evaluateStudySession(minutes: Int(hours * 60),
                                                    courseName: cert.name,
                                                    in: context)
+        ChallengeManager.updateProgress(user: user, in: context)
         hourDrafts[cert.id] = ""
         try? context.save()
         evaluate()
@@ -261,6 +262,8 @@ struct CertificationsTabView: View {
         cert.earnedAt = .now
         cert.xpEarned += XPEngine.xpForCertification
         user.award(XPEngine.xpForCertification, to: .learning)
+        context.insert(LearningLog(type: "certification", name: cert.name, hoursStudied: 0, xpEarned: XPEngine.xpForCertification, notes: "Earned"))
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
         evaluate()
     }

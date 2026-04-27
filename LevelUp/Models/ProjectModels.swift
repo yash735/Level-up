@@ -86,7 +86,7 @@ final class WorkEntry {
     var xpEarned: Int
     var createdAt: Date
 
-    init(project: Project,
+    init(project: Project? = nil,
          date: Date = .now,
          actionType: String,
          title: String,
@@ -131,5 +131,26 @@ final class WorkEntry {
             : base
         let bonus = hours >= 3.0 ? 50 : 0
         return multiplied + bonus
+    }
+}
+
+// MARK: - Daily Todo Item
+
+@Model
+final class DailyTodoItem {
+    var id: UUID
+    var title: String
+    var isCompleted: Bool
+    var date: Date
+    var orderIndex: Int
+    var createdAt: Date
+
+    init(title: String, date: Date = .now, orderIndex: Int = 0) {
+        self.id = UUID()
+        self.title = title
+        self.isCompleted = false
+        self.date = Calendar.current.startOfDay(for: date)
+        self.orderIndex = orderIndex
+        self.createdAt = .now
     }
 }

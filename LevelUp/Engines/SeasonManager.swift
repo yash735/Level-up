@@ -83,6 +83,8 @@ enum SeasonManager {
             break // Silver/Bronze — no carryover
         }
 
+        let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
+        UnlockCenter.shared.present(newly)
         try? context.save()
     }
 

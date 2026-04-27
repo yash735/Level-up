@@ -80,7 +80,8 @@ enum ChallengeManager {
 
         for challenge in challenges where !challenge.isCompleted && !challenge.isFailed {
             let cWeekStart = challenge.weekStartDate
-            let cWeekEnd = cal.date(byAdding: .day, value: 7, to: cWeekStart)!
+            let windowDays = challenge.challengeType == "monthly_mega" ? 30 : 7
+            let cWeekEnd = cal.date(byAdding: .day, value: windowDays, to: cWeekStart)!
 
             let newValue: Double
             switch challenge.challengeType {
@@ -165,6 +166,9 @@ enum ChallengeManager {
             user.award(1666, to: .learning)
             BonusEngine.earnAchievement(key: "unstoppable_challenger", in: context)
         }
+
+        let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
+        UnlockCenter.shared.present(newly)
 
         let tierLabel = challenge.tierLabel
         var subtitle = "+\(totalXP) XP — \(tierLabel) difficulty"

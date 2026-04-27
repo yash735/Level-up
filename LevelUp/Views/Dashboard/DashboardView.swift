@@ -19,10 +19,8 @@ struct DashboardView: View {
     @Query private var unlocks: [Unlock]
     @Query(sort: \PersonalRecord.date, order: .reverse) private var records: [PersonalRecord]
 
-    // Minimum per-track data needed to drive the densified track-card
-    // metrics. We skip CardioSession and HabitLog since the dashboard
-    // doesn't surface cardio/habit totals today.
     @Query(sort: \GymSession.date, order: .reverse) private var gymSessions: [GymSession]
+    @Query(sort: \CardioSession.date, order: .reverse) private var cardioSessions: [CardioSession]
     @Query(sort: \FoodEntry.date, order: .reverse) private var foodEntries: [FoodEntry]
     @Query(sort: \WeightEntry.date, order: .reverse) private var weightEntries: [WeightEntry]
     @Query(sort: \Project.orderIndex) private var projects: [Project]
@@ -32,24 +30,35 @@ struct DashboardView: View {
     @Query private var books: [Book]
     @Query private var certifications: [Certification]
     @Query(sort: \LearningLog.date, order: .reverse) private var learningLogs: [LearningLog]
+    @Query(sort: \HabitLog.date, order: .reverse) private var habitLogs: [HabitLog]
     @Query(sort: \WeeklyChallenge.weekStartDate, order: .reverse) private var allChallenges: [WeeklyChallenge]
 
+    @AppStorage("weeklyGymSessionsTarget") private var weeklyGymSessionsTarget = 5
+    @AppStorage("weeklyWorkHoursTarget") private var weeklyWorkHoursTarget = 40
     @AppStorage("weeklyStudyHoursTarget") private var weeklyStudyHoursTarget = 10
     @Query private var achievements: [Achievement]
 
     // Rebuilt on every render — value-type VM stays in sync with @Query.
     private var vm: DashboardViewModel {
-        DashboardViewModel(user: user, unlocks: unlocks)
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        let gymXP = gymSessions.filter { $0.date >= today && !$0.isRestDay }.reduce(0) { $0 + $1.xpEarned }
+        let cardioXP = cardioSessions.filter { $0.date >= today }.reduce(0) { $0 + $1.xpEarned }
+        let workXP = workEntries.filter { $0.date >= today }.reduce(0) { $0 + $1.xpEarned }
+        let learnXP = learningLogs.filter { $0.date >= today }.reduce(0) { $0 + $1.xpEarned }
+        let foodXP = foodEntries.filter { $0.date >= today }.reduce(0) { $0 + $1.xpEarned }
+        let weightXP = weightEntries.filter { $0.date >= today }.reduce(0) { $0 + $1.xpEarned }
+        let habitXP = habitLogs.filter { $0.date >= today }.reduce(0) { $0 + $1.xpEarned }
+        return DashboardViewModel(user: user, unlocks: unlocks,
+                                  xpEarnedToday: gymXP + cardioXP + workXP + learnXP + foodXP + weightXP + habitXP)
     }
 
-    // Per-track VMs, rebuilt per render. Unused inputs (cardio, habits)
-    // are passed as empty arrays since the dashboard doesn't read them.
     private var fitnessVM: FitnessViewModel {
         FitnessViewModel(gymSessions: gymSessions,
-                         cardioSessions: [],
+                         cardioSessions: cardioSessions,
                          foodEntries: foodEntries,
                          weightEntries: weightEntries,
-                         habitLogs: [])
+                         habitLogs: habitLogs)
     }
 
     private var workVM: WorkViewModel {
@@ -69,6 +78,7 @@ struct DashboardView: View {
                 multiplierBadge
                 heroRow
                 trackCards
+                weeklyTargetsCard
                 activeChallengesSection
                 phase45StatusRow
                 recordsSection
@@ -101,12 +111,14 @@ struct DashboardView: View {
             BonusEngine.checkBalancedDay(user: user, in: context)
             ChallengeManager.updateProgress(user: user, in: context)
 
-            // Sync active multiplier to user
+            // Sync active multiplier + expiry to user
             let mult = BonusEngine.activeMultiplier(in: context)
             if user.resolvedMultiplier != mult {
                 user.resolvedMultiplier = mult
-                try? context.save()
             }
+            let state = BonusEngine.getOrCreateRankStreakState(in: context)
+            user.multiplierExpiryDate = state.xpMultiplierActive ? state.xpMultiplierExpiryDate : nil
+            try? context.save()
         }
     }
 
@@ -189,7 +201,7 @@ struct DashboardView: View {
                 Image(systemName: "bolt.fill")
                     .font(.title2)
                     .foregroundStyle(Theme.xpGold)
-                Text("\(String(format: "%.0f", user.resolvedMultiplier))x XP ACTIVE")
+                Text("\(String(format: "%.1g", user.resolvedMultiplier))x XP ACTIVE")
                     .font(.subheadline).fontWeight(.heavy).tracking(2)
                     .foregroundStyle(Theme.xpGold)
                 if days > 0 {
@@ -207,6 +219,67 @@ struct DashboardView: View {
                     .stroke(Theme.xpGold.opacity(0.4), lineWidth: 1.5)
             )
         }
+    }
+
+    // MARK: - Weekly Targets
+
+    private var weeklyTargetsCard: some View {
+        let gymProgress = min(1.0, Double(fitnessVM.sessionsThisWeek) / Double(max(1, weeklyGymSessionsTarget)))
+        let workProgress = min(1.0, workVM.hoursThisWeek / Double(max(1, weeklyWorkHoursTarget)))
+        let studyProgress = min(1.0, studyHoursThisWeek / Double(max(1, weeklyStudyHoursTarget)))
+
+        return Card {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("WEEKLY TARGETS")
+                    .font(.caption).fontWeight(.heavy).tracking(2)
+                    .foregroundStyle(Theme.textSecondary)
+
+                HStack(spacing: 20) {
+                    targetRing("GYM", current: fitnessVM.sessionsThisWeek, target: weeklyGymSessionsTarget,
+                               progress: gymProgress, unit: "", color: Theme.xpGreen)
+                    targetRing("WORK", current: Int(workVM.hoursThisWeek), target: weeklyWorkHoursTarget,
+                               progress: workProgress, unit: "h", color: Theme.secondaryAccent)
+                    targetRing("STUDY", current: Int(studyHoursThisWeek), target: weeklyStudyHoursTarget,
+                               progress: studyProgress, unit: "h", color: Theme.primaryAccent)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(Theme.cardPadding)
+        }
+    }
+
+    private func targetRing(_ label: String, current: Int, target: Int,
+                            progress: Double, unit: String, color: Color) -> some View {
+        let hit = current >= target
+        return VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .stroke(Theme.cardBorder, lineWidth: 5)
+                    .frame(width: 64, height: 64)
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(hit ? Theme.xpGreen : color, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                    .frame(width: 64, height: 64)
+                    .rotationEffect(.degrees(-90))
+                if hit {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 18, weight: .black))
+                        .foregroundStyle(Theme.xpGreen)
+                } else {
+                    Text("\(current)\(unit)")
+                        .font(.system(size: 14, weight: .heavy, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.textPrimary)
+                }
+            }
+            Text(label)
+                .font(.caption2).fontWeight(.heavy).tracking(1)
+                .foregroundStyle(Theme.textSecondary)
+            Text("\(current)/\(target)\(unit)")
+                .font(.caption2).monospacedDigit()
+                .foregroundStyle(hit ? Theme.xpGreen : Theme.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Active Challenges
@@ -434,8 +507,10 @@ struct DashboardView: View {
         } else {
             weightText = "—"
         }
+        let gymHit = fitnessVM.sessionsThisWeek >= weeklyGymSessionsTarget
         return [
-            .init(label: "WEEK",   value: "\(fitnessVM.sessionsThisWeek)/5"),
+            .init(label: "WEEK",   value: "\(fitnessVM.sessionsThisWeek)/\(weeklyGymSessionsTarget)",
+                  tint: gymHit ? Theme.xpGreen : nil),
             .init(label: "TODAY",  value: "\(fitnessVM.todaysCalories) kcal"),
             .init(label: "WEIGHT", value: weightText)
         ]
@@ -444,11 +519,13 @@ struct DashboardView: View {
     private var workMetrics: [XPTrackCard.Metric] {
         let completed = projectMilestones.filter { $0.isCompleted }.count
         let total = projectMilestones.count
+        let workHit = workVM.hoursThisWeek >= Double(weeklyWorkHoursTarget)
         return [
             .init(label: "PROJECTS",
                   value: "\(workVM.activeProjects.count)"),
             .init(label: "THIS WEEK",
-                  value: String(format: "%.0fh", workVM.hoursThisWeek)),
+                  value: String(format: "%.0f/%dh", workVM.hoursThisWeek, weeklyWorkHoursTarget),
+                  tint: workHit ? Theme.xpGreen : nil),
             .init(label: "MILESTONES",
                   value: "\(completed)/\(total)")
         ]

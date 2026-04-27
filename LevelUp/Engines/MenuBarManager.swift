@@ -18,12 +18,6 @@ final class MenuBarManager: NSObject, ObservableObject {
     private var popover: NSPopover?
     private let container: ModelContainer
 
-    /// Which quick-log tab to open. Set by context menu before showing popover.
-    @Published var defaultTab: QuickLogTab = {
-        let raw = UserDefaults.standard.string(forKey: "menuBarDefaultTab") ?? "fitness"
-        return QuickLogTab(rawValue: raw) ?? .fitness
-    }()
-
     /// Fires after a successful log so the popover auto-closes.
     @Published var shouldAutoClose = false
 
@@ -62,7 +56,7 @@ final class MenuBarManager: NSObject, ObservableObject {
 
     private func setupPopover() {
         popover = NSPopover()
-        popover?.contentSize = NSSize(width: 320, height: 480)
+        popover?.contentSize = NSSize(width: 320, height: 400)
         popover?.behavior = .transient
         popover?.animates = true
 
@@ -176,18 +170,10 @@ final class MenuBarManager: NSObject, ObservableObject {
 
         menu.addItem(.separator())
 
-        // Quick log shortcuts
-        let fitItem = NSMenuItem(title: "Quick Log Workout", action: #selector(quickLogFitness), keyEquivalent: "")
-        fitItem.target = self
-        menu.addItem(fitItem)
-
-        let workItem = NSMenuItem(title: "Quick Log Work", action: #selector(quickLogWork), keyEquivalent: "")
-        workItem.target = self
-        menu.addItem(workItem)
-
-        let studyItem = NSMenuItem(title: "Quick Log Study", action: #selector(quickLogLearning), keyEquivalent: "")
-        studyItem.target = self
-        menu.addItem(studyItem)
+        // Quick log
+        let logItem = NSMenuItem(title: "Quick Log", action: #selector(openQuickLog), keyEquivalent: "l")
+        logItem.target = self
+        menu.addItem(logItem)
 
         menu.addItem(.separator())
 
@@ -234,15 +220,31 @@ final class MenuBarManager: NSObject, ObservableObject {
             let gyms = (try? ctx.fetch(gymDesc)) ?? []
             let gymXP = gyms.filter { cal.isDate($0.date, inSameDayAs: todayStart) && !$0.isRestDay }
                 .reduce(0) { $0 + $1.xpEarned }
+            let cardioDesc = FetchDescriptor<CardioSession>()
+            let cardios = (try? ctx.fetch(cardioDesc)) ?? []
+            let cardioXP = cardios.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
+                .reduce(0) { $0 + $1.xpEarned }
             let foodDesc = FetchDescriptor<FoodEntry>()
             let foods = (try? ctx.fetch(foodDesc)) ?? []
             let foodXP = foods.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
+                .reduce(0) { $0 + $1.xpEarned }
+            let weightDesc = FetchDescriptor<WeightEntry>()
+            let weights = (try? ctx.fetch(weightDesc)) ?? []
+            let weightXP = weights.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
                 .reduce(0) { $0 + $1.xpEarned }
             let workDesc = FetchDescriptor<WorkEntry>()
             let workEntries = (try? ctx.fetch(workDesc)) ?? []
             let workXP = workEntries.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
                 .reduce(0) { $0 + $1.xpEarned }
-            cachedTodayXP = gymXP + foodXP + workXP
+            let learnDesc = FetchDescriptor<LearningLog>()
+            let learns = (try? ctx.fetch(learnDesc)) ?? []
+            let learnXP = learns.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
+                .reduce(0) { $0 + $1.xpEarned }
+            let habitDesc = FetchDescriptor<HabitLog>()
+            let habits = (try? ctx.fetch(habitDesc)) ?? []
+            let habitXP = habits.filter { cal.isDate($0.date, inSameDayAs: todayStart) }
+                .reduce(0) { $0 + $1.xpEarned }
+            cachedTodayXP = gymXP + cardioXP + foodXP + weightXP + workXP + learnXP + habitXP
         }
 
         // Active challenge
@@ -276,18 +278,7 @@ final class MenuBarManager: NSObject, ObservableObject {
         }
     }
 
-    @objc private func quickLogFitness() {
-        defaultTab = .fitness
-        togglePopover()
-    }
-
-    @objc private func quickLogWork() {
-        defaultTab = .work
-        togglePopover()
-    }
-
-    @objc private func quickLogLearning() {
-        defaultTab = .learning
+    @objc private func openQuickLog() {
         togglePopover()
     }
 

@@ -370,7 +370,7 @@ struct ProjectTabView: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty
-                              || Double(hoursText) == nil)
+                              || (Double(hoursText) ?? 0) <= 0)
                 }
 
                 if let toast {
@@ -465,9 +465,9 @@ struct ProjectTabView: View {
                               xpEarned: xp)
         context.insert(entry)
         user.award(xp, to: .work)
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
 
-        ChallengeManager.updateProgress(user: user, in: context)
         let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
         UnlockCenter.shared.present(newly)
 
@@ -485,6 +485,7 @@ struct ProjectTabView: View {
             if !m.xpAwarded {
                 user.award(XPEngine.xpForProjectMilestone, to: .work)
                 m.xpAwarded = true
+                ChallengeManager.updateProgress(user: user, in: context)
             }
         } else {
             m.isCompleted = false

@@ -232,6 +232,7 @@ struct WeightTabView: View {
                                 xpEarned: XPEngine.xpForWeightLog)
         context.insert(entry)
         user.award(XPEngine.xpForWeightLog, to: .fitness)
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
 
         let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)

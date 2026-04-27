@@ -213,11 +213,126 @@ enum AIClient {
         return decoded.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
     }
 
-    private static func intFromAny(_ value: Any?) -> Int {
+    // MARK: - Quick Log (AI Natural Language)
+
+    struct QuickLogResult {
+        let type: String
+        let confidence: Double
+        let summary: String
+        let data: [String: Any]
+    }
+
+    static func parseQuickLog(input: String, context: String) async throws -> QuickLogResult {
+        guard let key = APIConfig.anthropicAPIKey else { throw AIError.missingKey }
+
+        let systemPrompt = """
+        You are a quick-log parser for a personal XP tracking app. Parse the user's natural language input into a structured log entry.
+
+        CONTEXT (user's current data):
+        \(context)
+
+        RULES:
+        1. Match project/course/book/cert names using fuzzy matching against the CONTEXT above. Return the EXACT name from context. If no project matches, set projectName to "" — the entry will be logged as a quick task without a project.
+        2. For work: infer actionType from keywords. "deep work"/"focused"/"coding"/"building" → "Deep Work". "meeting"/"call with"/"sync" → "Meeting". "reading"/"researching" → "Research". "admin"/"email"/"organize"/"taxes"/"bills"/"errands" → "Admin". Default to "Other" if unclear.
+        3. For gym: ONLY use type "gym" for weight training / split-based workouts (upper, lower, push, pull, legs). Use today's planned split unless the user specifies otherwise. Default intensity to "medium" unless they say easy/light or hard/intense/heavy.
+        4. For cardio: ANY non-weight-training physical activity — running, swimming, cycling, HIIT, yoga, walking, sports (cricket, football, basketball, tennis, etc.), hiking, dancing. If the user mentions a sport name or cardio activity, use type "cardio", NOT "gym".
+        5. For time: "2 hours"/"2h"/"2hrs" → 2.0. "30 min"/"30m" → 0.5 hours (or 30 minutes for learning). No time for work → 1.0 hours. No time for learning → 30 minutes. No duration for cardio → 30 minutes.
+        6. For weight: extract the number in kg.
+        7. For food: extract the meal description.
+        8. If input is ambiguous or matches nothing, set confidence below 0.5.
+        9. For todo/task planning: if the user says "todo", "add task", "remind me to", "plan to", or "need to" — use type "todo". This is a planning item, NOT a work log.
+
+        Return ONLY a JSON object:
+        {"type": "work|gym|cardio|learning|weight|food|todo", "confidence": 0.0-1.0, "summary": "human readable confirmation", "data": {...}}
+
+        DATA schemas:
+        work: {"projectName": str, "actionType": str, "title": str, "hours": float}
+        gym: {"splitDay": str, "intensity": "easy|medium|hard"}
+        cardio: {"sport": str, "durationMinutes": int, "intensity": "easy|medium|hard", "distanceKm": float}
+        learning: {"learningType": "course|book|certification", "name": str, "durationMinutes": int}
+        weight: {"weightKg": float}
+        food: {"mealType": "Breakfast|Lunch|Dinner|Snack", "description": str}
+        todo: {"title": str}
+        """
+
+        let body: [String: Any] = [
+            "model": model,
+            "max_tokens": 500,
+            "system": systemPrompt,
+            "messages": [
+                ["role": "user", "content": input]
+            ]
+        ]
+
+        var req = URLRequest(url: endpoint)
+        req.httpMethod = "POST"
+        req.setValue(key, forHTTPHeaderField: "x-api-key")
+        req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        req.setValue("application/json", forHTTPHeaderField: "content-type")
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: req)
+
+        if let http = response as? HTTPURLResponse, http.statusCode >= 400 {
+            let bodyText = String(data: data, encoding: .utf8) ?? "<binary>"
+            throw AIError.badStatus(http.statusCode, bodyText)
+        }
+
+        guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let contentArr = obj["content"] as? [[String: Any]],
+              let text = contentArr.first(where: { ($0["type"] as? String) == "text" })?["text"] as? String,
+              !text.isEmpty
+        else {
+            throw AIError.emptyResponse
+        }
+
+        return try parseQuickLogJSON(text)
+    }
+
+    private static func parseQuickLogJSON(_ text: String) throws -> QuickLogResult {
+        var cleaned = text
+        if let fenceRange = cleaned.range(of: "```") {
+            cleaned = String(cleaned[fenceRange.upperBound...])
+            if cleaned.hasPrefix("json") { cleaned = String(cleaned.dropFirst(4)) }
+            if let end = cleaned.range(of: "```") { cleaned = String(cleaned[..<end.lowerBound]) }
+        }
+
+        guard let open = cleaned.firstIndex(of: "{"),
+              let close = cleaned.lastIndex(of: "}"),
+              open < close
+        else {
+            throw AIError.parse("no JSON object found in: \(text)")
+        }
+
+        let jsonSlice = String(cleaned[open...close])
+        guard let jsonData = jsonSlice.data(using: .utf8),
+              let dict = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+        else {
+            throw AIError.parse("invalid JSON: \(jsonSlice)")
+        }
+
+        let type = dict["type"] as? String ?? "work"
+        let confidence = doubleFromAny(dict["confidence"])
+        let summary = dict["summary"] as? String ?? "Parsed entry"
+        let data = dict["data"] as? [String: Any] ?? [:]
+
+        return QuickLogResult(type: type, confidence: confidence, summary: summary, data: data)
+    }
+
+    // MARK: - Helpers
+
+    static func intFromAny(_ value: Any?) -> Int {
         if let i = value as? Int { return i }
         if let d = value as? Double { return Int(d.rounded()) }
         if let s = value as? String, let i = Int(s) { return i }
         if let s = value as? String, let d = Double(s) { return Int(d.rounded()) }
+        return 0
+    }
+
+    static func doubleFromAny(_ value: Any?) -> Double {
+        if let d = value as? Double { return d }
+        if let i = value as? Int { return Double(i) }
+        if let s = value as? String, let d = Double(s) { return d }
         return 0
     }
 }

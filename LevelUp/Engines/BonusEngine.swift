@@ -147,6 +147,8 @@ enum BonusEngine {
             }
         }
 
+        let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
+        UnlockCenter.shared.present(newly)
         try? context.save()
     }
 
@@ -248,6 +250,8 @@ enum BonusEngine {
             earnAchievement(key: "renaissance_man", in: context)
         }
 
+        let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
+        UnlockCenter.shared.present(newly)
         try? context.save()
     }
 
@@ -284,6 +288,9 @@ enum BonusEngine {
         context.insert(log)
 
         earnAchievement(key: "founder_week", in: context)
+
+        let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
+        UnlockCenter.shared.present(newly)
 
         GameEventCenter.shared.fireBanner(
             title: "BUILDER WEEK ACHIEVED",

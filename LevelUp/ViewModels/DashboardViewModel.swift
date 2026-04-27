@@ -37,9 +37,7 @@ struct DashboardViewModel {
     var nextCombinedUnlock: Unlock? { nextUnlock(forTrack: "combined") }
 
     // MARK: - Today
-    //
-    // Phase 1 has no logs — return 0 until Phase 2 wires up sum-by-day.
-    var xpEarnedToday: Int { 0 }
+    var xpEarnedToday: Int
 
     // MARK: - Per-track helpers
 

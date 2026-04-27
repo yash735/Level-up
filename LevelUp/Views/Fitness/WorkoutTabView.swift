@@ -24,7 +24,6 @@ struct WorkoutTabView: View {
     // Gym form
     @State private var gymIntensity: XPEngine.FitnessIntensity = .medium
     @State private var gymNotes: String = ""
-    @State private var exerciseRows: [ExerciseDraft] = [ExerciseDraft()]
     @State private var gymResultToast: String?
     /// Which split the user is actually training today. Defaults to the
     /// weekday plan (Upper on Mon, Lower on Tue, …) but can be changed
@@ -174,37 +173,6 @@ struct WorkoutTabView: View {
 
                 splitDayPicker
                 intensityPicker(selection: $gymIntensity)
-
-                VStack(spacing: 8) {
-                    ForEach($exerciseRows) { $row in
-                        HStack(spacing: 8) {
-                            TextField("Exercise", text: $row.name)
-                                .textFieldStyle(.plain)
-                                .padding(10)
-                                .background(Theme.background)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .stroke(Theme.cardBorder, lineWidth: 1)
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
-                            numField("Sets", text: $row.setsText, width: 60)
-                            numField("Reps", text: $row.repsText, width: 60)
-                            numField("Kg", text: $row.weightText, width: 72)
-                        }
-                    }
-                    Button {
-                        exerciseRows.append(ExerciseDraft())
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "plus.circle.fill")
-                            Text("Add exercise")
-                        }
-                        .font(.caption).fontWeight(.semibold)
-                        .foregroundStyle(Theme.xpGreen)
-                    }
-                    .buttonStyle(.plain)
-                }
 
                 TextField("Notes (optional)", text: $gymNotes)
                     .textFieldStyle(.plain)
@@ -366,7 +334,7 @@ struct WorkoutTabView: View {
                     ForEach(vm.recentGymSessions) { session in
                         historyRow(icon: "dumbbell.fill",
                                    title: session.splitDay,
-                                   subtitle: "\(session.exercises.count) exercises · \(session.intensity.rawValue.capitalized)",
+                                   subtitle: session.intensity.rawValue.capitalized,
                                    xp: session.xpEarned,
                                    date: session.date)
                     }
@@ -414,28 +382,22 @@ struct WorkoutTabView: View {
 
     private func submitGym() {
         guard let state = splitState else { return }
-        let exercises = exerciseRows.compactMap { $0.make() }
         let result = GymSplitEngine.logGymSession(user: user,
                                                   state: state,
                                                   splitDay: selectedSplitDay,
                                                   intensity: gymIntensity,
                                                   notes: gymNotes,
-                                                  exercises: exercises,
+                                                  exercises: [],
                                                   in: context)
 
-        // Phase 3: route total XP through the central award helper so
-        // gain + level-up events fire.
         user.award(result.totalXP, to: .fitness)
+        ChallengeManager.updateProgress(user: user, in: context)
+        try? context.save()
 
-        // Fire the perfect-week overlay if the bonus landed.
         if result.perfectWeekBonus > 0 {
             GameEventCenter.shared.firePerfectWeek(xp: result.perfectWeekBonus)
         }
 
-        // Personal records: evaluate the set of exercises just logged.
-        PersonalRecordsEngine.evaluateLift(exercises: exercises, in: context)
-
-        // Evaluate unlocks after granting XP.
         let newly = UnlockEngine.evaluateUnlocks(user: user, context: context)
         UnlockCenter.shared.present(newly)
 
@@ -445,7 +407,6 @@ struct WorkoutTabView: View {
         if result.streakMilestoneBonus > 0 { parts.append("+\(result.streakMilestoneBonus) 30-day") }
         gymResultToast = parts.joined(separator: " · ")
 
-        exerciseRows = [ExerciseDraft()]
         gymNotes = ""
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { gymResultToast = nil }
     }
@@ -463,6 +424,7 @@ struct WorkoutTabView: View {
                                     xpEarned: xp)
         context.insert(session)
         user.award(xp, to: .fitness)
+        ChallengeManager.updateProgress(user: user, in: context)
         try? context.save()
 
         PersonalRecordsEngine.evaluateCardio(session: session, in: context)
@@ -480,24 +442,5 @@ struct WorkoutTabView: View {
     private func logRestDay() {
         guard let state = splitState else { return }
         GymSplitEngine.logRestDay(state: state, in: context)
-    }
-}
-
-// MARK: - Exercise draft
-
-private struct ExerciseDraft: Identifiable {
-    let id = UUID()
-    var name: String = ""
-    var setsText: String = ""
-    var repsText: String = ""
-    var weightText: String = ""
-
-    func make() -> Exercise? {
-        let trimmed = name.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return nil }
-        let sets = Int(setsText) ?? 0
-        let reps = Int(repsText) ?? 0
-        let weight = Double(weightText) ?? 0
-        return Exercise(name: trimmed, sets: sets, reps: reps, weightKg: weight)
     }
 }
