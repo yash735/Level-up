@@ -391,12 +391,13 @@ struct StatsView: View {
         let allKeys = Set(gymDays.keys).union(cardioDays.keys)
         var result: [DayWorkout] = []
         for key in allKeys {
-            let date = cal.startOfDay(for: fmt.date(from: key) ?? .now)
+            let dayStart = cal.startOfDay(for: fmt.date(from: key) ?? .now)
+            let noon = cal.date(bySettingHour: 12, minute: 0, second: 0, of: dayStart) ?? dayStart
             if let g = gymDays[key], g > 0 {
-                result.append(DayWorkout(date: date, type: "Gym", count: g))
+                result.append(DayWorkout(date: noon, type: "Gym", count: g))
             }
             if let c = cardioDays[key], c > 0 {
-                result.append(DayWorkout(date: date, type: "Cardio", count: c))
+                result.append(DayWorkout(date: noon, type: "Cardio", count: c))
             }
         }
         return result.sorted { $0.date < $1.date }
@@ -518,8 +519,9 @@ struct StatsView: View {
 
         for e in entries {
             let key = fmt.string(from: e.date)
-            let day = cal.startOfDay(for: e.date)
-            buckets[key, default: DayBucket(date: day)].calories += e.calories
+            let dayStart = cal.startOfDay(for: e.date)
+            let noon = cal.date(bySettingHour: 12, minute: 0, second: 0, of: dayStart) ?? dayStart
+            buckets[key, default: DayBucket(date: noon)].calories += e.calories
         }
         return buckets.values.sorted { $0.date < $1.date }
     }
@@ -1165,8 +1167,11 @@ struct StatsView: View {
             dayMap[key, default: (0,0,0)].l += l.xpEarned
         }
 
+        let cal = Calendar.current
         let sorted = dayMap.map { key, val in
-            DayXP(date: fmt.date(from: key) ?? .now, fitness: val.f, work: val.w, learning: val.l)
+            let raw = fmt.date(from: key) ?? .now
+            let noon = cal.date(bySettingHour: 12, minute: 0, second: 0, of: raw) ?? raw
+            return DayXP(date: noon, fitness: val.f, work: val.w, learning: val.l)
         }.sorted { $0.date < $1.date }
 
         return Card {
